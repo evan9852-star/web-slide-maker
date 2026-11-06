@@ -283,7 +283,7 @@ html.pm .r{opacity:1!important;transform:none!important;transition:none!importan
 #bHelp{width:36px;padding:9px 0;font-size:14px}
 .toolbar button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
 .toolbar button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
-html.sp-open .toolbar{right:416px}
+html.sp-open .toolbar{right:calc(var(--spw,400px) + 16px)}
 
 /* ── 우측 진행 바: 장마다 한 칸 · 지나온 칸 네이비 / 지금 오렌지 / 남은 칸 회색 · 누르면 이동 ── */
 .navdots{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;align-items:center;
@@ -317,7 +317,7 @@ html.sp-open .toolbar{right:416px}
 .peek .r,.pp-prev .r{opacity:1!important;transform:none!important;transition:none!important}
 @media print{.peek{display:none!important}}
 .navdots a:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
-html.sp-open .navdots{right:414px}
+html.sp-open .navdots{right:calc(var(--spw,400px) + 14px)}
 
 /* ── 등장 모션 ── */
 .js .slide .r{opacity:0;transform:translateY(12px)}
@@ -383,7 +383,7 @@ html.edit .blk-sel,html.edit .blk-sel:hover{outline:2px solid var(--orange)!impo
 .ins{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:88;display:none;flex-wrap:wrap;justify-content:center;align-items:center;gap:3px;
   padding:6px 8px;background:rgba(255,255,255,.96);border:1px solid var(--n200);border-radius:22px;box-shadow:0 10px 30px rgba(12,26,46,.16);max-width:94vw}
 html.edit .ins{display:flex}
-html.sp-open .ins{left:calc(50% - 200px)}
+html.sp-open .ins{left:calc(50% - var(--spw,400px) / 2)}
 .ins button{font:inherit;font-size:13px;font-weight:700;color:var(--n700);background:transparent;border:none;border-radius:var(--r-pill);padding:9px 16px;cursor:pointer;white-space:nowrap}
 .ins button:hover{background:var(--n100);color:var(--navy)}
 .ins button[aria-expanded="true"]{background:var(--navy);color:#fff}
@@ -393,7 +393,7 @@ html.sp-open .ins{left:calc(50% - 200px)}
 .gal-pop{position:fixed;left:50%;bottom:72px;transform:translateX(-50%);z-index:89;width:min(480px,92vw);max-height:62vh;overflow:auto;display:none;
   background:#fff;border:1px solid var(--n200);border-radius:14px;box-shadow:0 18px 50px rgba(12,26,46,.2);padding:12px 14px 14px}
 .gal-pop.on{display:block}
-html.sp-open .gal-pop{left:calc(50% - 200px)}
+html.sp-open .gal-pop{left:calc(50% - var(--spw,400px) / 2)}
 .gal{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .gal h5{grid-column:1/-1;font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--orange-ink);margin:10px 0 2px}
 .gal h5:first-child{margin-top:0}
@@ -481,10 +481,19 @@ html.fmt-on .blk-tools{visibility:hidden}
 @media print{.fmt,.cpop,.fpop{display:none!important}}
 
 /* ── 설정 패널 ── */
-.sp{position:fixed;top:0;right:0;width:400px;height:100%;z-index:90;background:#fff;border-left:1px solid var(--n200);
-  overflow:auto;padding:22px 22px 60px;display:none;box-shadow:-12px 0 40px rgba(12,26,46,.08);font-size:14px}
+.sp{position:fixed;top:0;right:0;width:var(--spw,400px);height:100%;z-index:90;background:#fff;border-left:1px solid var(--n200);
+  overflow:auto;overflow-x:hidden;padding:0;display:none;box-shadow:-12px 0 40px rgba(12,26,46,.08);font-size:14px}
+/* 패널 내용은 400px 기준으로 그린 뒤 폭에 맞춰 통째로 확대 → 넓힐수록 글자도 커짐 */
+.sp-in{width:400px;zoom:var(--spk,1);padding:22px 22px 60px}
 html.sp-open .sp{display:block}
-html.sp-open body{margin-right:400px}
+html.sp-open body{margin-right:var(--spw,400px)}
+.sp-grip{position:fixed;top:0;bottom:0;right:calc(var(--spw,400px) - 6px);width:12px;z-index:92;cursor:ew-resize;display:none;touch-action:none}
+.sp-grip::after{content:'';position:absolute;left:5px;top:0;bottom:0;width:2px;background:transparent;transition:background .15s}
+.sp-grip:hover::after,html.sp-resizing .sp-grip::after{background:var(--orange)}
+.sp-grip i{position:absolute;left:1px;top:50%;width:10px;height:44px;margin-top:-22px;border-radius:6px;background:#fff;border:1px solid var(--n300);box-shadow:0 1px 4px rgba(12,26,46,.12)}
+.sp-grip i::before{content:'';position:absolute;left:3px;top:14px;width:2px;height:14px;border-left:1px solid var(--n400);border-right:1px solid var(--n400)}
+html.sp-open .sp-grip{display:block}
+html.sp-resizing,html.sp-resizing *{cursor:ew-resize!important;user-select:none!important;-webkit-user-select:none!important}
 .sp h3{font-size:18px;font-weight:800;color:var(--navy);display:flex;justify-content:space-between;align-items:center}
 .sp h4{font-size:12.5px;font-weight:800;letter-spacing:.08em;color:var(--orange-ink);margin:26px 0 12px;padding-top:18px;border-top:1px solid var(--n200)}
 .sp .note{font-size:12.5px;line-height:1.6;color:var(--n500);margin-top:8px}
@@ -564,7 +573,7 @@ html.pm.pm-console .pm-exit{display:none!important}
   [data-k]{background:none!important}
 }
 @media screen and (max-width:900px){
-  .sp{width:100%} html.sp-open body{margin-right:0}
+  .sp{width:100%} .sp-in{zoom:1;width:auto} html.sp-open body{margin-right:0} html.sp-open .sp-grip{display:none}
   html.sp-open .toolbar{right:16px;top:auto;bottom:16px}
   .toolbar{top:10px;right:10px;flex-wrap:wrap;justify-content:flex-end;max-width:70vw}
   .navdots{right:8px}
@@ -2026,7 +2035,7 @@ html.pm.pm-console .pm-exit{display:none!important}
         h+='</label>';
       });
     });
-    sp.innerHTML=h; buildSlideList();
+    var st0=sp.scrollTop; sp.innerHTML='<div class="sp-in">'+h+'</div>'; sp.scrollTop=st0; buildSlideList();
   }
   function scenHTML(){
     var h='<div class="row3 hd"><span>수익률 가정 이름</span><span>연 %</span><span>개월*</span><span></span></div>';
@@ -2118,9 +2127,26 @@ html.pm.pm-console .pm-exit{display:none!important}
     sec.scrollIntoView(); toast('추가했어요. 글자를 눌러 바로 고치세요.');
   }
   function rebuildScen(){ var box=document.getElementById('scen'); if(box) box.outerHTML=scenHTML(); }
+  /* 설정 패널 폭 조절: 왼쪽 가장자리를 끌기 · 400~520px · 넓힐수록 글자도 커짐 · 이 브라우저에 기억 */
+  var SPW_MIN=400, SPW_MAX=520, spGrip=null;
+  function setSpw(w){ w=Math.round(Math.max(SPW_MIN,Math.min(SPW_MAX,w))); root.style.setProperty('--spw',w+'px'); root.style.setProperty('--spk',(w/400).toFixed(3)); return w; }
+  try{ var sw0=+localStorage.getItem('wsm-sp-w'); if(sw0) setSpw(sw0); }catch(_){}
+  function ensureGrip(){
+    if(spGrip||!document.getElementById('sp')) return;
+    spGrip=document.createElement('div'); spGrip.className='sp-grip'; spGrip.setAttribute('data-gen',''); spGrip.title='끌어서 설정 창 크기 조절 · 두 번 누르면 원래 크기';
+    spGrip.innerHTML='<i></i>'; body.appendChild(spGrip);
+    spGrip.addEventListener('pointerdown',function(e){
+      e.preventDefault(); root.classList.add('sp-resizing');
+      function mv(ev){ setSpw(innerWidth-ev.clientX); fitDoc(); }
+      function up(){ removeEventListener('pointermove',mv); removeEventListener('pointerup',up); root.classList.remove('sp-resizing');
+        var w=parseInt(getComputedStyle(root).getPropertyValue('--spw'))||400; try{ localStorage.setItem('wsm-sp-w',w); }catch(_){} fitDoc(); }
+      addEventListener('pointermove',mv); addEventListener('pointerup',up);
+    });
+    spGrip.addEventListener('dblclick',function(){ setSpw(400); try{ localStorage.removeItem('wsm-sp-w'); }catch(_){} fitDoc(); });
+  }
   function toggleSp(on){
     on=(on===undefined)?!root.classList.contains('sp-open'):on;
-    if(on) buildPanel();
+    if(on){ ensureGrip(); buildPanel(); }
     root.classList.toggle('sp-open',on); document.getElementById('bSet').setAttribute('aria-pressed',on);
     setTimeout(fitDoc,30);
   }
