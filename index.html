@@ -2299,6 +2299,29 @@ html.pm.pm-console .pm-exit{display:none!important}
     toast('"'+nm+'" '+(final?'완성본으로 저장했어요. 설정·편집 도구가 빠진 파일입니다.':'작업본으로 내려받았어요. (이 브라우저는 덮어쓰기를 지원하지 않아 새 파일로 저장돼요)'),4600);
   }
   function paintSaveState(){ var b=document.querySelector('.sp [data-act="work"]'); if(b) b.textContent=fileHandle?'작업본 저장 (⌘S) · '+fileHandle.name:'작업본 저장 (⌘S)'; }
+  /* ⌘/Ctrl+A (편집 중): 누른 칸 안만 → 한 번 더: 그 블록 → 한 번 더: 지금 장 전체. 아무 칸도 안 눌렀으면 지금 보고 있는 장만 */
+  var BOX='td,th,li,h1,h2,h3,h4,p,figcaption,.key .row,.key,.keyline,.ww,.wd,.wn,.flow .k,.flow .v,.sign .label';
+  function selectNodes(a,b){ var r=document.createRange(); r.setStartBefore(a); r.setEndAfter(b||a);
+    if(a===b||!b){ r.selectNodeContents(a); } var s=getSelection(); s.removeAllRanges(); s.addRange(r); }
+  function sameText(el){ var t=String(getSelection()).replace(/\s+/g,''), u=(el.textContent||'').replace(/\s+/g,''); return t.length>0&&t===u; }
+  function stageSelectAll(st){
+    var bl=blocksOf(st).filter(function(b){ return !b.classList.contains('blk-tools'); }); if(!bl.length) return;
+    var r=document.createRange(); r.setStartBefore(bl[0]); r.setEndAfter(bl[bl.length-1]); var s=getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+  addEventListener('keydown',function(e){
+    if(!edit||pm||!(e.metaKey||e.ctrlKey)||e.altKey||e.shiftKey||(e.key||'').toLowerCase()!=='a') return;
+    var t=e.target; if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+    if(t&&t.closest&&t.closest('.sp,.cm-back,.fmt,.fpop,.cpop,.bgpop,.gal-pop')) return;
+    e.preventDefault(); e.stopPropagation();
+    var s=getSelection(), n=s.rangeCount?s.getRangeAt(0).startContainer:null; if(n&&n.nodeType===3) n=n.parentNode;
+    var st=n&&n.closest?n.closest('.stage'):null;
+    if(!st||!deck.contains(st)||st.closest('.peek,.pp-prev')){ var cs=curSlide(); if(cs) stageSelectAll(cs.querySelector('.stage')); return; }
+    var box=n.closest(BOX); if(box&&!st.contains(box)) box=null;
+    var blk=blockOf(n);
+    if(box&&!sameText(box)){ selectNodes(box); return; }
+    if(blk&&!sameText(blk)){ selectNodes(blk); return; }
+    stageSelectAll(st);
+  },true);
   /* ⌘/Ctrl+S = 작업본 저장(같은 파일에 덮어쓰기) · ⌘/Ctrl+Shift+S = 다른 이름으로 */
   addEventListener('keydown',function(e){
     if(!(e.metaKey||e.ctrlKey)||e.altKey||(e.key||'').toLowerCase()!=='s'||!document.getElementById('bEdit')) return;
@@ -2321,6 +2344,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<li><b>글자를 드래그해 선택하면 서식 막대</b>가 바로 위에 떠요. 글꼴(견본을 보고 고름) · 크기(pt, − 숫자 +) · 굵게 · 색 · 서식 지우기.</li>'+
       '<li>글자 크기는 <b>pt(포인트)</b>예요. 슬라이드가 PPT와 같은 크기라 PPT에서 쓰던 숫자 그대로 쓰면 돼요 (예: 제목 40pt, 본문 15pt).</li>'+
       '<li>굵게: 글자를 선택하고 <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>B</kbd></li>'+
+      '<li>전체 선택 <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>A</kbd>: 누른 칸 안의 글자만 → 한 번 더 누르면 그 블록 → 한 번 더 누르면 그 장 전체. 아무 칸도 안 눌렀으면 지금 보고 있는 장만 선택돼요.</li>'+
       '<li>주황 음영이 있는 글자는 자동값이에요. [설정]에서 바꾸세요. (예: 작성자 이름, 날짜)</li>'+
       '<li>실수했다면 <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Z</kbd>로 되돌리고, <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd>(또는 <kbd>Ctrl</kbd> + <kbd>Y</kbd>)로 다시 실행해요. 아래 바의 ↶ ↷ 버튼도 같아요.</li>'+
       '<li>다른 곳에서 복사한 글은 서식 없이 글자만 들어가요.</li></ul></details>'+
@@ -2438,7 +2462,7 @@ html.pm.pm-console .pm-exit{display:none!important}
     e.preventDefault(); e.stopPropagation(); if(k==='y'||e.shiftKey) redo(); else undo();
   },true);
   /* 저장하지 않은 변경이 있으면 창을 닫기 전에 경고 */
-  addEventListener('beforeunload',function(e){ if(!document.getElementById('bEdit')) return; commit(); if(HI>savedHI){ e.preventDefault(); e.returnValue=''; } });
+  addEventListener('beforeunload',function(e){ if(!document.getElementById('bEdit')) return; clearTimeout(typingT); var x=snap(); if(HIST[savedHI]!==undefined&&x===HIST[savedHI]) return; if(HIST[savedHI]===undefined&&HIST.length<2) return; e.preventDefault(); e.returnValue=''; });
   function on(id,fn){ var b=document.getElementById(id); if(b) b.onclick=fn; }
   on('bHelp',openHelp);
   on('bSet',function(){ toggleSp(); });
