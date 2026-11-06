@@ -459,6 +459,7 @@ html.fmt-on .blk-tools{visibility:hidden}
 .fmt .ff span{max-width:130px;overflow:hidden;text-overflow:ellipsis;font-size:14px}
 .fmt input{width:52px;font:inherit;font-size:13px;font-weight:700;text-align:center;color:#fff;background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px 2px}
 .fmt input:focus{outline:2px solid var(--orange)}
+.fmt .u{font-style:normal;font-size:11px;font-weight:700;color:rgba(255,255,255,.6);margin-left:-1px}
 .fmt i{width:1px;height:20px;background:rgba(255,255,255,.2);margin:0 3px}
 .fmt .dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.8)}
 .cpop{position:fixed;z-index:97;display:grid;grid-template-columns:repeat(5,30px);gap:6px;padding:10px;background:#fff;border:1px solid var(--n200);border-radius:12px;box-shadow:0 12px 32px rgba(12,26,46,.2)}
@@ -523,6 +524,12 @@ html.sp-resizing,html.sp-resizing *{cursor:ew-resize!important;user-select:none!
 .sp .stp>span{margin:0;font-size:11.5px;color:var(--n400);white-space:nowrap}
 .sp .stp input{padding:5px 9px!important;font-size:12.5px!important;background:#fff!important}
 .sp textarea.nt{margin:4px 0 8px;height:92px;font-size:13.5px}
+.sp .spz{display:flex;align-items:center;gap:4px;margin:12px 0 2px;padding:8px 10px;background:var(--n050);border:1px solid var(--n200);border-radius:10px}
+.sp .spz>span{flex:1;font-size:12.5px;font-weight:700;color:var(--n600)}
+.sp .spz input,.sp .rng input[type=number]{width:58px!important;text-align:center;padding:6px 4px!important;font-weight:700!important}
+.sp .spz em,.sp .rng em{font-style:normal;font-size:12.5px;font-weight:700;color:var(--n500)}
+.sp .spz .btn.x{font-size:17px;padding:2px 9px;color:var(--n700)}
+.sp .rng{display:flex;align-items:center;gap:8px} .sp .rng input[type=range]{flex:1}
 .sp .sl[draggable]{cursor:grab}
 .sp .sl .grip{color:var(--n300);font-size:12px;letter-spacing:-2px;cursor:grab;user-select:none}
 .sp .sl.drop{box-shadow:inset 0 2px 0 var(--orange)}
@@ -1928,11 +1935,12 @@ html.pm.pm-console .pm-exit{display:none!important}
     if(r.startContainer.nodeType===1&&r.startContainer.childNodes[r.startOffset]){ var c=r.startContainer.childNodes[r.startOffset]; n=c.nodeType===1?c:(c.parentNode||n); }
     return getComputedStyle(n); }
   function fontKeyOf(ff){ ff=String(ff||''); for(var i=0;i<FONTS.length;i++){ var m=/'([^']+)'/.exec(FONTS[i][2]); if(m&&ff.indexOf(m[1])>-1) return FONTS[i][0]; } return ff.indexOf('-apple-system')===0||ff.indexOf('system-ui')>-1?'system':''; }
+  function ptPx(pt){ return (Math.round(pt/0.75*100)/100)+'px'; }
   function buildFmt(){
     fmtBar=document.createElement('div'); fmtBar.className='fmt'; fmtBar.setAttribute('data-gen',''); fmtBar.setAttribute('role','toolbar'); fmtBar.setAttribute('aria-label','글자 서식');
     fmtBar.innerHTML='<button type="button" class="ff" data-fpick data-f="font" title="글꼴"><span>글꼴</span> ▾</button><i></i>'+
-      '<button type="button" data-f="sz-" title="작게">−</button><input type="number" min="8" max="200" data-f="sz" title="글자 크기 (px)" list="szList"><button type="button" data-f="sz+" title="크게">+</button>'+
-      '<datalist id="szList">'+[12,14,16,18,20,24,28,32,40,48,56,64,80,96].map(function(x){ return '<option value="'+x+'">'; }).join('')+'</datalist><i></i>'+
+      '<button type="button" data-f="sz-" title="작게">−</button><input type="number" min="6" max="150" step="0.5" data-f="sz" title="글자 크기 (pt · PPT와 같은 크기)" list="szList"><em class="u">pt</em><button type="button" data-f="sz+" title="크게">+</button>'+
+      '<datalist id="szList">'+[9,10,11,12,14,16,18,20,24,28,32,36,40,44,48,54,60,72,96].map(function(x){ return '<option value="'+x+'">'; }).join('')+'</datalist><i></i>'+
       '<button type="button" data-f="b" title="굵게 (⌘/Ctrl+B)"><b>B</b></button>'+
       '<button type="button" class="cl" data-f="color" title="글자 색"><span class="dot"></span>색</button><i></i>'+
       '<button type="button" data-f="clear" title="서식 지우기">서식 지우기</button>';
@@ -1941,14 +1949,14 @@ html.pm.pm-console .pm-exit{display:none!important}
     fmtBar.addEventListener('click',function(e){
       var b=e.target.closest('[data-f]'); if(!b) return; var f=b.getAttribute('data-f'), cs=curStyle();
       if(f==='font') return fontPop(b,fontKeyOf(cs&&cs.fontFamily),function(k){ styleSel('font-family',k?fontStack(k):''); },true);
-      if(f==='sz-'||f==='sz+'){ var px=Math.round(parseFloat(cs?cs.fontSize:16)), st=px<40?2:4; styleSel('font-size',Math.max(8,px+(f==='sz+'?st:-st))+'px'); return; }
+      if(f==='sz-'||f==='sz+'){ var pt=Math.round(parseFloat(cs?cs.fontSize:16)*0.75), st=pt<20?1:(pt<48?2:4); styleSel('font-size',ptPx(Math.max(6,pt+(f==='sz+'?st:-st)))); return; }
       if(f==='b'){ restoreSel(); document.execCommand('bold'); savedRange=selRange(); commit(); return; }
       if(f==='color') return openColorPop(b);
       if(f==='clear') return clearFmt();
     });
     var szi=fmtBar.querySelector('[data-f="sz"]');
-    szi.addEventListener('change',function(){ var v=+szi.value; if(v>=8) styleSel('font-size',v+'px'); });
-    szi.addEventListener('keydown',function(e){ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); var v=+szi.value; if(v>=8) styleSel('font-size',v+'px'); } });
+    szi.addEventListener('change',function(){ var v=+szi.value; if(v>=6) styleSel('font-size',ptPx(v)); });
+    szi.addEventListener('keydown',function(e){ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); var v=+szi.value; if(v>=6) styleSel('font-size',ptPx(v)); } });
   }
   function openColorPop(btn){
     if(colorPop){ colorPop.parentNode.removeChild(colorPop); colorPop=null; return; }
@@ -1964,7 +1972,7 @@ html.pm.pm-console .pm-exit{display:none!important}
   function paintFmt(){
     if(!fmtBar) return; var cs=curStyle(); if(!cs) return;
     var k=fontKeyOf(cs.fontFamily), sp=fmtBar.querySelector('.ff span'); sp.textContent=k?fontName(k):'글꼴'; sp.style.fontFamily=cs.fontFamily;
-    var szi=fmtBar.querySelector('[data-f="sz"]'); if(document.activeElement!==szi) szi.value=Math.round(parseFloat(cs.fontSize));
+    var szi=fmtBar.querySelector('[data-f="sz"]'); if(document.activeElement!==szi) szi.value=Math.round(parseFloat(cs.fontSize)*0.75*2)/2;
     fmtBar.querySelector('.dot').style.background=cs.color;
     fmtBar.querySelector('[data-f="b"]').classList.toggle('on',+cs.fontWeight>=700);
   }
@@ -2009,7 +2017,11 @@ html.pm.pm-console .pm-exit{display:none!important}
     ['슬라이드',[['@slides']]]
   ];
   function buildPanel(){
+    var spPt=spwToPt(parseInt(getComputedStyle(root).getPropertyValue('--spw'))||400);
     var h='<h3>설정 <button type="button" class="btn" data-act="close">닫기</button></h3>'+
+      '<div class="spz" title="설정 창 글자 크기 (10.5~13.5pt) · 왼쪽 가장자리를 끌어도 돼요"><span>설정 창 글자</span>'+
+      '<button type="button" class="btn x" data-act="spz-" aria-label="작게">−</button><input type="number" min="10.5" max="13.5" step="0.5" value="'+spPt+'" data-spz aria-label="설정 창 글자 크기 pt"><em>pt</em>'+
+      '<button type="button" class="btn x" data-act="spz+" aria-label="크게">+</button></div>'+
       '<p class="note">입력하면 바로 반영됩니다. 이 브라우저에는 저장되지 않으니 파일로 남기세요. ⌘/Ctrl+Z로 되돌릴 수 있어요.</p>'+
       '<div class="btns"><button type="button" class="btn" data-act="final">완성본 저장</button><button type="button" class="btn" data-act="work">작업본 저장 (이어서 수정)</button><button type="button" class="btn" data-act="open">작업본 불러오기</button></div>'+
       '<p class="note">🔒 이 도구는 인터넷으로 아무것도 보내지 않아요. 편집한 내용은 이 브라우저 안에만 있고, 저장하면 내 컴퓨터로만 내려받아져요.</p>'+
@@ -2023,11 +2035,12 @@ html.pm.pm-console .pm-exit{display:none!important}
         if(f[0]==='@slides'){ h+='<div id="slList"></div><p class="note">진행 단계: 같은 이름을 적은 장끼리 한 단계로 묶여 상단 트랙에 표시됩니다. 비우면 트랙 없음.<br>⋮⋮ 끌어서 순서 바꾸기 · ✎ 발표자 노트 · ⧉ 복제 · 체크 해제 = 숨기기</p><p class="note" style="margin:14px 0 8px">장 추가 · 마우스를 올리면 미리보기</p>'+galleryHTML(); return; }
         var p=f[0], val=get(p), t=f[2];
         if(t==='check'){ h+='<label class="chk"><input type="checkbox" data-f="'+p+'"'+(val?' checked':'')+'><span>'+f[1]+'</span></label>'; return; }
-        h+='<label><span>'+f[1]+(t==='range'?' · <b data-out="'+p+'">'+Math.round(val*100)+'%</b>':'')+'</span>';
+        h+='<label><span>'+f[1]+(t==='range'?' · 본문 기준 (13~21pt, 기본 15pt)':'')+'</span>';
         if(t==='font') h+='<button type="button" class="fpick" data-fpick="'+p+'"><span style="font-family:'+esc(fontStack(val))+'">'+esc(fontName(val))+'</span><em>바꾸기 ▾</em></button>';
         else if(t==='select') h+='<select data-f="'+p+'">'+f[3].split('|').map(function(o){ return '<option'+(o===val?' selected':'')+'>'+o+'</option>'; }).join('')+'</select>';
         else if(t==='textarea') h+='<textarea data-f="'+p+'">'+esc(val)+'</textarea>';
-        else if(t==='range') h+='<input type="range" min="0.85" max="1.4" step="0.05" value="'+val+'" data-f="'+p+'" data-t="num">';
+        else if(t==='range') h+='<div class="rng"><input type="range" min="0.8667" max="1.4" step="0.0333" value="'+val+'" data-f="'+p+'" data-t="num">'+
+          '<input type="number" min="13" max="21" step="0.5" value="'+(Math.round(val*15*2)/2)+'" data-pct="'+p+'" aria-label="'+esc(f[1])+' pt"><em>pt</em></div>';
         else if(t==='color') h+='<input type="color" value="'+val+'" data-f="'+p+'">';
         else if(t==='list') h+='<input type="text" value="'+esc((val||[]).join(', '))+'" data-f="'+p+'" data-t="list">';
         else if(t==='won') h+='<input type="number" step="100000" value="'+val+'" data-f="'+p+'" data-t="num"><em data-out="'+p+'">'+fmtWon(val)+'</em>';
@@ -2061,6 +2074,10 @@ html.pm.pm-console .pm-exit{display:none!important}
     }).join('')+'<datalist id="stpList">'+CFG.slides.map(function(it){ return it.step; }).filter(function(x,i,a){ return x&&a.indexOf(x)===i; }).map(function(x){ return '<option value="'+esc(x)+'">'; }).join('')+'</datalist>';
   }
   sp.addEventListener('input',function(e){
+    if(e.target.hasAttribute('data-spz')){ var v=+e.target.value; if(v>=10.5&&v<=13.5){ setSpw(ptToSpw(v)); saveSpw(); fitDoc(); } return; }
+    if(e.target.hasAttribute('data-pct')){ var pp=e.target.getAttribute('data-pct'), pv=+e.target.value; if(!(pv>=13&&pv<=21)) return;
+      set(pp,pv/15); var rg=sp.querySelector('input[type=range][data-f="'+pp+'"]'); if(rg) rg.value=pv/15; refresh(); return; }
+    if(e.target.type==='range'&&e.target.getAttribute('data-f')){ var nb=sp.querySelector('[data-pct="'+e.target.getAttribute('data-f')+'"]'); if(nb) nb.value=Math.round(e.target.value*15*2)/2; }
     if(e.target.hasAttribute('data-stp')){ CFG.slides[+e.target.getAttribute('data-stp')].step=e.target.value; refresh(); return; }
     var t=e.target, p=t.getAttribute('data-f');
     if(p){
@@ -2085,6 +2102,9 @@ html.pm.pm-console .pm-exit{display:none!important}
     var to=+r.getAttribute('data-row'), it=CFG.slides.splice(dragRow,1)[0]; CFG.slides.splice(to,0,it); dragRow=-1; refresh(); buildSlideList(); });
   sp.addEventListener('dragend',function(){ dragRow=-1; [].forEach.call(sp.querySelectorAll('.sl.drop,.sl.dragging'),function(x){ x.classList.remove('drop','dragging'); }); });
   sp.addEventListener('change',function(e){
+    if(e.target.hasAttribute('data-spz')){ var v=Math.max(10.5,Math.min(13.5,Math.round((+e.target.value||10.5)*2)/2)); e.target.value=v; setSpw(ptToSpw(v)); saveSpw(); fitDoc(); return; }
+    if(e.target.hasAttribute('data-pct')){ var pp=e.target.getAttribute('data-pct'), pv=Math.max(13,Math.min(21,Math.round((+e.target.value||15)*2)/2)); e.target.value=pv;
+      set(pp,pv/15); var rg=sp.querySelector('input[type=range][data-f="'+pp+'"]'); if(rg) rg.value=pv/15; refresh(); return; }
     var t=e.target;
     if(t.type==='checkbox'&&t.getAttribute('data-f')){ set(t.getAttribute('data-f'),t.checked); refresh(); }
     if(t.hasAttribute('data-son')){ CFG.slides[+t.getAttribute('data-son')].on=t.checked; refresh(); buildSlideList(); }
@@ -2094,6 +2114,8 @@ html.pm.pm-console .pm-exit{display:none!important}
     var act=b.getAttribute('data-act');
     if(act==='close') return toggleSp(false);
     if(b.hasAttribute('data-fpick')){ var fp=b.getAttribute('data-fpick'); return fontPop(b,get(fp),function(k){ set(fp,k); refresh(); buildPanel(); }); }
+    if(act==='spz-'||act==='spz+'){ var cp=spwToPt(parseInt(getComputedStyle(root).getPropertyValue('--spw'))||400), np=Math.max(10.5,Math.min(13.5,cp+(act==='spz+'?.5:-.5)));
+      setSpw(ptToSpw(np)); saveSpw(); fitDoc(); var zi=sp.querySelector('[data-spz]'); if(zi) zi.value=np; return; }
     if(act==='final') return saveHTML(true);
     if(act==='ffile') return loadUserFont(function(){ if(CFG.display.fontHead!=='user'&&CFG.display.fontBody!=='user'){ CFG.display.fontHead='user'; CFG.display.fontBody='user'; } refresh(); buildPanel(); toast('글꼴을 불러와 제목·본문에 적용했어요'); });
     if(act==='ffdel'){ document.getElementById('userfont').textContent=''; CFG.display.userFont='';
@@ -2129,6 +2151,10 @@ html.pm.pm-console .pm-exit{display:none!important}
   function rebuildScen(){ var box=document.getElementById('scen'); if(box) box.outerHTML=scenHTML(); }
   /* 설정 패널 폭 조절: 왼쪽 가장자리를 끌기 · 400~520px · 넓힐수록 글자도 커짐 · 이 브라우저에 기억 */
   var SPW_MIN=400, SPW_MAX=520, spGrip=null;
+  /* 설정 창 본문 14px = 10.5pt 기준. 폭 400px ↔ 10.5pt, 520px ↔ 13.65pt */
+  function spwToPt(w){ return Math.round(w/400*10.5*2)/2; }
+  function ptToSpw(pt){ return pt/10.5*400; }
+  function saveSpw(){ var w=parseInt(getComputedStyle(root).getPropertyValue('--spw'))||400; try{ if(w===400) localStorage.removeItem('wsm-sp-w'); else localStorage.setItem('wsm-sp-w',w); }catch(_){} }
   function setSpw(w){ w=Math.round(Math.max(SPW_MIN,Math.min(SPW_MAX,w))); root.style.setProperty('--spw',w+'px'); root.style.setProperty('--spk',(w/400).toFixed(3)); return w; }
   try{ var sw0=+localStorage.getItem('wsm-sp-w'); if(sw0) setSpw(sw0); }catch(_){}
   function ensureGrip(){
@@ -2137,12 +2163,12 @@ html.pm.pm-console .pm-exit{display:none!important}
     spGrip.innerHTML='<i></i>'; body.appendChild(spGrip);
     spGrip.addEventListener('pointerdown',function(e){
       e.preventDefault(); root.classList.add('sp-resizing');
-      function mv(ev){ setSpw(innerWidth-ev.clientX); fitDoc(); }
+      function mv(ev){ var w=setSpw(innerWidth-ev.clientX); fitDoc(); var zi=sp.querySelector('[data-spz]'); if(zi) zi.value=spwToPt(w); }
       function up(){ removeEventListener('pointermove',mv); removeEventListener('pointerup',up); root.classList.remove('sp-resizing');
         var w=parseInt(getComputedStyle(root).getPropertyValue('--spw'))||400; try{ localStorage.setItem('wsm-sp-w',w); }catch(_){} fitDoc(); }
       addEventListener('pointermove',mv); addEventListener('pointerup',up);
     });
-    spGrip.addEventListener('dblclick',function(){ setSpw(400); try{ localStorage.removeItem('wsm-sp-w'); }catch(_){} fitDoc(); });
+    spGrip.addEventListener('dblclick',function(){ setSpw(400); saveSpw(); fitDoc(); var zi=sp.querySelector('[data-spz]'); if(zi) zi.value=10.5; });
   }
   function toggleSp(on){
     on=(on===undefined)?!root.classList.contains('sp-open'):on;
@@ -2216,7 +2242,8 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<div><b>2</b><strong>편집</strong>글자를 눌러 고치고, 장과 블록을 추가해요.</div>'+
       '<div><b>3</b><strong>완성본 저장</strong>편집 도구가 빠진 깨끗한 파일이 만들어져요.</div></div>'+
       '<details open><summary>글자 고치기</summary><ul><li>[편집]을 켜고 글자를 누르면 바로 고칠 수 있어요.</li>'+
-      '<li><b>글자를 드래그해 선택하면 서식 막대</b>가 바로 위에 떠요. 글꼴(견본을 보고 고름) · 크기(− 숫자 +) · 굵게 · 색 · 서식 지우기.</li>'+
+      '<li><b>글자를 드래그해 선택하면 서식 막대</b>가 바로 위에 떠요. 글꼴(견본을 보고 고름) · 크기(pt, − 숫자 +) · 굵게 · 색 · 서식 지우기.</li>'+
+      '<li>글자 크기는 <b>pt(포인트)</b>예요. 슬라이드가 PPT와 같은 크기라 PPT에서 쓰던 숫자 그대로 쓰면 돼요 (예: 제목 40pt, 본문 15pt).</li>'+
       '<li>굵게: 글자를 선택하고 <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>B</kbd></li>'+
       '<li>주황 음영이 있는 글자는 자동값이에요. [설정]에서 바꾸세요. (예: 작성자 이름, 날짜)</li>'+
       '<li>실수했다면 <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Z</kbd>로 되돌리고, <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd>(또는 <kbd>Ctrl</kbd> + <kbd>Y</kbd>)로 다시 실행해요. 아래 바의 ↶ ↷ 버튼도 같아요.</li>'+
