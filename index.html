@@ -2069,7 +2069,8 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<button type="button" class="btn x" data-act="spz-" aria-label="작게">−</button><input type="number" min="10.5" max="16.5" step="0.5" value="'+spPt+'" data-spz aria-label="설정 창 글자 크기 pt"><em>pt</em>'+
       '<button type="button" class="btn x" data-act="spz+" aria-label="크게">+</button></div>'+
       '<p class="note">입력하면 바로 반영됩니다. 이 브라우저에는 저장되지 않으니 파일로 남기세요. ⌘/Ctrl+Z로 되돌릴 수 있어요.</p>'+
-      '<div class="btns"><button type="button" class="btn" data-act="final">완성본 저장</button><button type="button" class="btn" data-act="work">작업본 저장 (이어서 수정)</button><button type="button" class="btn" data-act="open">작업본 불러오기</button></div>'+
+      '<div class="btns"><button type="button" class="btn" data-act="final">완성본 저장</button><button type="button" class="btn" data-act="work">작업본 저장 (⌘S)</button><button type="button" class="btn" data-act="saveas">다른 이름으로</button><button type="button" class="btn" data-act="open">작업본 불러오기</button></div>'+
+      '<p class="note">작업본은 PPT처럼 ⌘/Ctrl+S로 같은 파일에 덮어써요 (크롬 · 엣지). 처음 한 번만 저장 위치를 물어봐요.</p>'+
       '<p class="note">🔒 이 도구는 인터넷으로 아무것도 보내지 않아요. 편집한 내용은 이 브라우저 안에만 있고, 저장하면 내 컴퓨터로만 내려받아져요.</p>'+
       '<p class="note">완성본에는 설정·글 고치기·저장 버튼이 없고 발표, PDF만 남습니다. 꺼둔 장은 빠집니다.</p>';
     FIELDS.forEach(function(g){
@@ -2094,7 +2095,7 @@ html.pm.pm-console .pm-exit{display:none!important}
         h+='</label>';
       });
     });
-    var st0=sp.scrollTop; sp.innerHTML='<div class="sp-in">'+h+'</div>'; sp.scrollTop=st0; buildSlideList();
+    var st0=sp.scrollTop; sp.innerHTML='<div class="sp-in">'+h+'</div>'; sp.scrollTop=st0; buildSlideList(); paintSaveState();
   }
   function scenHTML(){
     var h='<div class="row3 hd"><span>수익률 가정 이름</span><span>연 %</span><span>개월*</span><span></span></div>';
@@ -2167,6 +2168,7 @@ html.pm.pm-console .pm-exit{display:none!important}
     if(act==='ffdel'){ document.getElementById('userfont').textContent=''; CFG.display.userFont='';
       ['fontHead','fontBody'].forEach(function(k){ if(CFG.display[k]==='user') CFG.display[k]='gmarket'; }); refresh(); buildPanel(); return; }
     if(act==='work') return saveHTML(false);
+    if(act==='saveas') return saveHTML(false,true);
     if(act==='open') return openWork();
     if(act==='sadd'){ CFG.product.scenarios.push({label:'연 0% 가정',rate:0,months:0}); rebuildScen(); refresh(); return; }
     if(b.hasAttribute('data-sdel')){ CFG.product.scenarios.splice(+b.getAttribute('data-sdel'),1); rebuildScen(); refresh(); return; }
@@ -2224,32 +2226,43 @@ html.pm.pm-console .pm-exit{display:none!important}
   }
 
   /* ── 작업본 불러오기: 내 컴퓨터의 작업본 파일을 브라우저 안에서만 읽어 지금 도구(최신 버전)로 이어서 편집 ── */
+  /* 작업본 파일 핸들: ⌘S 때 같은 파일에 덮어쓰기 위해 기억 (크롬 · 엣지) */
+  var fileHandle=null, canFS=!!(window.showSaveFilePicker&&window.showOpenFilePicker);
+  var FS_TYPES=[{description:'웹 슬라이드 메이커 HTML',accept:{'text/html':['.html','.htm']}}];
+  function loadWorkText(text,name){
+    try{
+      var doc=new DOMParser().parseFromString(text,'text/html'), cf=doc.getElementById('cfg'), dk=doc.getElementById('deck');
+      if(!cf||!dk) throw new Error('형식');
+      var nc=JSON.parse(cf.textContent); var wasFinal=!!nc.final; delete nc.final;
+      /* 예전 버전에서 빠진 설정은 지금 기본값으로 채움 */
+      ['planner','compliance','display'].forEach(function(k){ var base=CFG[k]||{}; nc[k]=nc[k]||{}; for(var x in base){ if(!(x in nc[k])) nc[k][x]=base[x]; } });
+      var uf=doc.getElementById('userfont');
+      selectBlk(null); if(edit) toggleEdit(false);
+      deck.innerHTML=dk.innerHTML; CFG=nc;
+      document.getElementById('userfont').textContent=uf?uf.textContent:'';
+      [].forEach.call(deck.querySelectorAll('.slide'),wrap);
+      refresh(); if(root.classList.contains('sp-open')) buildPanel();
+      savedHI=HI; slides[0]&&slides[0].scrollIntoView();
+      if(wasFinal) fileHandle=null; /* 완성본에 덮어쓰면 도구가 다시 들어가므로, 완성본을 열었으면 ⌘S는 새 작업본으로 */
+      toast('"'+name+'"을 불러왔어요. '+(fileHandle?'⌘/Ctrl+S로 이 파일에 바로 저장돼요.':'이어서 편집하세요.'),4600);
+      return true;
+    }catch(err){ toast('웹 슬라이드 메이커로 저장한 작업본(또는 완성본) 파일을 골라주세요.',4200); return false; }
+  }
   function openWork(){
+    if(canFS){
+      showOpenFilePicker({types:FS_TYPES,multiple:false}).then(function(hs){ var h=hs[0];
+        return h.getFile().then(function(f){ return f.text().then(function(t){ fileHandle=h; if(!loadWorkText(t,f.name)) fileHandle=null; }); });
+      }).catch(function(e){ if(e&&e.name!=='AbortError') toast('파일을 열지 못했어요.'); });
+      return;
+    }
     var inp=document.createElement('input'); inp.type='file'; inp.accept='.html,.htm,text/html';
-    inp.onchange=function(){ var f=inp.files[0]; if(!f) return; var rd=new FileReader();
-      rd.onload=function(){
-        try{
-          var doc=new DOMParser().parseFromString(rd.result,'text/html'), cf=doc.getElementById('cfg'), dk=doc.getElementById('deck');
-          if(!cf||!dk) throw new Error('형식');
-          var nc=JSON.parse(cf.textContent); delete nc.final;
-          /* 예전 버전에서 빠진 설정은 지금 기본값으로 채움 */
-          ['planner','compliance','display'].forEach(function(k){ var base=CFG[k]||{}; nc[k]=nc[k]||{}; for(var x in base){ if(!(x in nc[k])) nc[k][x]=base[x]; } });
-          var uf=doc.getElementById('userfont');
-          selectBlk(null); if(edit) toggleEdit(false);
-          deck.innerHTML=dk.innerHTML; CFG=nc;
-          document.getElementById('userfont').textContent=uf?uf.textContent:'';
-          [].forEach.call(deck.querySelectorAll('.slide'),wrap);
-          refresh(); if(root.classList.contains('sp-open')) buildPanel();
-          savedHI=HI; slides[0]&&slides[0].scrollIntoView(); toast('"'+f.name+'"을 불러왔어요. 이어서 편집하세요.',4200);
-        }catch(err){ toast('웹 슬라이드 메이커로 저장한 작업본(또는 완성본) 파일을 골라주세요.',4200); }
-      };
-      rd.readAsText(f); };
+    inp.onchange=function(){ var f=inp.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(){ loadWorkText(rd.result,f.name); }; rd.readAsText(f); };
     inp.click();
   }
   /* ── 저장: final=true 완성본(도구 제거) / false 작업본(도구 유지) ── */
   var savedHI=0;
-  function saveHTML(final){
-    commit(); savedHI=HI;
+  function saveHTML(final,asNew){
+    commit(); var hiNow=HI;
     var cl=root.cloneNode(true), out=JSON.parse(JSON.stringify(CFG));
     if(final){
       out.final=true;
@@ -2270,10 +2283,26 @@ html.pm.pm-console .pm-exit{display:none!important}
     var html='<!DOCTYPE html>\n'+cl.outerHTML;
     var d=new Date(), ymd=d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2);
     var nm=String(CFG.display.title||'슬라이드').replace(/[\\/:*?"<>|]/g,'').trim()+'_'+ymd+(final?'':'_작업본')+'.html';
+    /* 작업본: 크롬·엣지는 같은 파일에 덮어쓰기 (처음 한 번만 위치를 물음) */
+    if(!final&&canFS){
+      var pick=(fileHandle&&!asNew)?Promise.resolve(fileHandle):showSaveFilePicker({suggestedName:nm,types:FS_TYPES});
+      pick.then(function(h){ return h.createWritable().then(function(w){ return w.write(html).then(function(){ return w.close(); }); }).then(function(){
+          var first=!fileHandle||asNew; fileHandle=h; savedHI=hiNow; paintSaveState();
+          toast(first?'"'+h.name+'"에 저장했어요. 이제 ⌘/Ctrl+S만 누르면 이 파일에 바로 덮어써요.':'저장했어요 · '+h.name,first?5200:1600); }); })
+      .catch(function(e){ if(e&&e.name==='AbortError') return; toast('저장하지 못했어요. 다시 시도하거나 [완성본 저장]을 써 주세요.'); });
+      return;
+    }
     var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download=nm;
     body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
-    toast('"'+nm+'" '+(final?'완성본으로 저장했어요. 설정·편집 도구가 빠진 파일입니다.':'작업본으로 저장했어요. 열어서 이어서 고칠 수 있습니다.'),4600);
+    savedHI=hiNow; paintSaveState();
+    toast('"'+nm+'" '+(final?'완성본으로 저장했어요. 설정·편집 도구가 빠진 파일입니다.':'작업본으로 내려받았어요. (이 브라우저는 덮어쓰기를 지원하지 않아 새 파일로 저장돼요)'),4600);
   }
+  function paintSaveState(){ var b=document.querySelector('.sp [data-act="work"]'); if(b) b.textContent=fileHandle?'작업본 저장 (⌘S) · '+fileHandle.name:'작업본 저장 (⌘S)'; }
+  /* ⌘/Ctrl+S = 작업본 저장(같은 파일에 덮어쓰기) · ⌘/Ctrl+Shift+S = 다른 이름으로 */
+  addEventListener('keydown',function(e){
+    if(!(e.metaKey||e.ctrlKey)||e.altKey||(e.key||'').toLowerCase()!=='s'||!document.getElementById('bEdit')) return;
+    e.preventDefault(); e.stopPropagation(); if(pm) return; saveHTML(false,e.shiftKey);
+  },true);
 
   /* ── 도움말 ── */
   var helpEl=null;
@@ -2336,7 +2365,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<ul><li>청중 창이 따로 뜨면 프로젝터(TV)로 옮기고 클릭하세요. 내 화면에는 타이머, 다음 장, 노트가 보여요.</li>'+
       '<li>팝업이 막혀 있으면 한 화면 전체화면 발표로 시작해요. 태블릿은 좌우로 밀거나 화면을 탭해서 넘겨요.</li></ul></details>'+
       '<details><summary>저장 · PDF</summary><ul><li><b>완성본 저장</b>: 설정 · 편집 도구가 빠지고 [발표자 모드] [PDF / 인쇄]만 남은 파일. 꺼둔 장은 빠져요.</li>'+
-      '<li><b>작업본 저장</b> ([설정] 안): 나중에 이어서 고칠 수 있는 파일.</li>'+
+      '<li><b>작업본 저장 = <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd></b>: PPT처럼 같은 파일에 덮어써요. 처음 한 번만 위치를 물어보고, [작업본 불러오기]로 연 파일은 그 파일에 바로 저장돼요. 다른 이름으로는 <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>. (크롬 · 엣지. 사파리는 새 파일로 내려받아요)</li>'+
       '<li>🔒 이 도구는 인터넷으로 아무것도 보내지 않아요. 링크(GitHub Pages)로 열어도 편집 내용은 내 브라우저에만 있고, 저장하면 내 컴퓨터로만 내려받아져요.</li>'+
       '<li>편집 내용은 브라우저에 남지 않아요. 창을 닫기 전에 꼭 파일로 저장하세요.</li>'+
       '<li><b>작업본 불러오기</b> ([설정] 안): 예전에 저장한 작업본을 최신 도구에서 이어서 편집할 수 있어요. 파일은 이 브라우저 안에서만 읽어요.</li>'+
