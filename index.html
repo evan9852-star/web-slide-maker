@@ -436,6 +436,10 @@ html.sp-open .gal-pop{left:calc(50% - var(--spw,400px) / 2)}
 .hp ul{margin:8px 0 0 18px}
 .hp li{margin:3px 0}
 .hp kbd{font:inherit;font-size:12px;font-weight:700;background:var(--n100);border:1px solid var(--n200);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--n900)}
+.hp .hz{display:flex;gap:6px;align-items:center;margin-top:10px}
+.hp .hz button{font:inherit;font-size:13px;font-weight:700;color:var(--n700);background:#fff;border:1px solid var(--n200);border-radius:999px;padding:7px 14px;cursor:pointer}
+.hp .hz button:hover{border-color:var(--n400)}
+.hp .hzv{font-size:12.5px;color:var(--n500);margin-left:6px}
 .hp .kt{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin-top:8px}
 @media (max-width:640px){.hp .steps{grid-template-columns:1fr}}
 .cm-back{position:fixed;inset:0;z-index:100;background:rgba(12,26,46,.42);display:flex;align-items:center;justify-content:center;padding:16px}
@@ -2063,11 +2067,8 @@ html.pm.pm-console .pm-exit{display:none!important}
     ['슬라이드',[['@slides']]]
   ];
   function buildPanel(){
-    var spPt=spwToPt(parseInt(getComputedStyle(root).getPropertyValue('--spw'))||400);
     var h='<h3>설정 <button type="button" class="btn" data-act="close">닫기</button></h3>'+
-      '<div class="spz" title="설정 창 글자 크기 (10.5~16.5pt) · 왼쪽 가장자리를 끌어도 돼요"><span>설정 창 글자</span>'+
-      '<button type="button" class="btn x" data-act="spz-" aria-label="작게">−</button><input type="number" min="10.5" max="16.5" step="0.5" value="'+spPt+'" data-spz aria-label="설정 창 글자 크기 pt"><em>pt</em>'+
-      '<button type="button" class="btn x" data-act="spz+" aria-label="크게">+</button></div>'+
+
       '<p class="note">입력하면 바로 반영됩니다. 이 브라우저에는 저장되지 않으니 파일로 남기세요. ⌘/Ctrl+Z로 되돌릴 수 있어요.</p>'+
       '<div class="btns"><button type="button" class="btn" data-act="final">완성본 저장</button><button type="button" class="btn" data-act="work">작업본 저장 (⌘S)</button><button type="button" class="btn" data-act="saveas">다른 이름으로</button><button type="button" class="btn" data-act="open">작업본 불러오기</button></div>'+
       '<p class="note">작업본은 PPT처럼 ⌘/Ctrl+S로 같은 파일에 덮어써요 (크롬 · 엣지). 처음 한 번만 저장 위치를 물어봐요.</p>'+
@@ -2333,6 +2334,9 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<li><b>회전</b>: 위쪽 가운데 <b>⟳</b> 손잡이를 끌면 돌아가요(15°씩, <kbd>Alt</kbd> = 자유롭게). 사진은 도구 막대 [↻ 90°]로 사진 자체를 돌릴 수 있고, [회전 없애기]로 원래대로.</li>'+
       '<li>다른 블록이나 여백 · 정중앙 선에 가까워지면 자동으로 붙고 오렌지 기준선이 보여요. <kbd>Alt</kbd>를 누르고 끌면 자석이 꺼져요.</li>'+
       '<li>한 번 옮긴 장은 자유 배치가 돼요. [정렬 되돌리기]로 원래 배치로 돌아갑니다.</li></ul></details>'+
+      '<details><summary>설정 창 크기 · 글자</summary><ul><li>설정 창 <b>왼쪽 가장자리를 끌면</b> 창이 넓어지고 글자도 함께 커져요. 가장자리를 두 번 누르면 원래 크기.</li>'+
+      '<li>여기서 크기를 고를 수도 있어요.</li></ul>'+
+      '<div class="hz"><button type="button" data-hz="-">작게</button><button type="button" data-hz="0">기본</button><button type="button" data-hz="+">크게</button><span class="hzv"></span></div></details>'+
       '<details><summary>장 배경색</summary><ul><li>[편집] → 아래 바의 <b>[배경]</b>: 지금 보고 있는 장의 배경색을 골라요. 견본 · [직접] · [기본으로].</li>'+
       '<li>[모든 장에 적용]에 체크하면 모든 장이 한꺼번에 바뀌어요. 어두운 색을 고르면 글자가 자동으로 흰색이 돼요.</li></ul></details>'+
       '<details><summary>사진 넣기</summary><ul><li>사진 파일을 슬라이드 위로 <b>끌어다 놓으면</b> 바로 들어가요. 편집이 꺼져 있으면 자동으로 켜져요.</li>'+
@@ -2375,6 +2379,11 @@ html.pm.pm-console .pm-exit{display:none!important}
     body.appendChild(helpEl);
     helpEl.addEventListener('click',function(e){ if(e.target===helpEl||e.target.hasAttribute('data-x')) closeHelp(); });
     helpEl.addEventListener('keydown',function(e){ e.stopPropagation(); if(e.key==='Escape') closeHelp(); });
+    /* 설정 창 크기 (도움말 안에서) */
+    function paintHz(){ var w=parseInt(getComputedStyle(root).getPropertyValue('--spw'))||400; helpEl.querySelector('.hzv').textContent='지금 '+Math.round(w/4)+'% 크기'; }
+    helpEl.querySelector('.hz').addEventListener('click',function(e){ var b=e.target.closest('[data-hz]'); if(!b) return; var k=b.getAttribute('data-hz'), w=parseInt(getComputedStyle(root).getPropertyValue('--spw'))||400;
+      setSpw(k==='0'?400:w+(k==='+'?40:-40)); saveSpw(); fitDoc(); paintHz(); if(!root.classList.contains('sp-open')) toast('설정 창을 열면 바뀐 크기로 보여요',2000); });
+    paintHz();
     /* 도움말 검색: 낱말이 들어 있는 줄만 남기고 그 메뉴를 펼침 */
     var hs=helpEl.querySelector('.hs'), none=helpEl.querySelector('.hs-none'), secs=[].slice.call(helpEl.querySelectorAll('details')), steps=helpEl.querySelector('.steps');
     secs.forEach(function(d){ d.__open=d.open; [].forEach.call(d.querySelectorAll('li,.kt>span'),function(li){ li.__h=li.innerHTML; }); });
