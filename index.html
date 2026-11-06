@@ -516,6 +516,55 @@ html.cs-on .blk-tools,html.cs-on .fmt{visibility:hidden}
 .tpop .sq{width:14px;height:14px;border-radius:3px;border:2px solid rgba(255,255,255,.8)}
 @media print{.tpop{display:none!important} .csel{box-shadow:none!important}}
 
+/* ── 차트 편집 창 ── */
+.cm.ce{width:min(1280px,96vw);max-height:92vh;overflow-y:auto;overscroll-behavior:contain;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;padding:28px 30px;font-size:16px}
+.cm.ce h3{font-size:22px} .cm.ce label>span{font-size:14px} .cm.ce input:not([type=color]):not([type=range]){font-size:16px}
+.cm.ce .acts{position:sticky;bottom:-28px;background:#fff;padding:14px 0 6px;margin-bottom:-6px;border-top:1px solid var(--n100)}
+.cm.ce .acts button{font-size:15.5px;padding:11px 24px}
+.cm.ce header{grid-column:1/-1} .cm.ce header p{font-size:14.5px;color:var(--n500);margin-top:4px}
+.ce-types{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.ce-types button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:11px 4px 9px;border:1px solid var(--n200);border-radius:12px;background:#fff;cursor:pointer;color:var(--n500);font:inherit;font-size:13.5px;font-weight:700}
+.ce-types button svg{width:32px;height:27px}
+.ce-types button:hover{border-color:var(--n400);color:var(--navy)}
+.ce-types button.on{border-color:var(--orange);background:var(--orange-tint);color:var(--orange-ink)}
+.ce-gw{max-height:46vh;overflow:auto;border:1px solid var(--n200);border-radius:12px}
+.ce-grid{border-collapse:separate;border-spacing:0;width:100%;font-size:16px}
+.ce-grid th,.ce-grid td{border-bottom:1px solid var(--n100);padding:0}
+.ce-grid thead th{position:sticky;top:0;background:var(--n050);z-index:1;font-size:13.5px;font-weight:700;color:var(--n500);text-align:left;padding:8px 10px;border-bottom:1px solid var(--n200);vertical-align:middle}
+.ce-grid thead th.sv>div{display:flex;align-items:center;gap:8px}
+.ce-grid input{width:100%;border:none!important;background:transparent!important;border-radius:0!important;padding:12px 12px!important;font:inherit;font-size:16px!important;color:var(--n900);line-height:1.3}
+.ce-grid thead input{padding:4px 2px!important;font-weight:800;font-size:15px!important;color:var(--n900)}
+.ce-grid td.sv input{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.ce-grid input:focus{outline:2px solid var(--orange)!important;outline-offset:-2px;background:#fff!important}
+.ce-grid td.lb{min-width:150px} .ce-grid td+td{border-left:1px solid var(--n100)}
+.ce-grid .dim{opacity:.4}
+.ce-grid .st{width:38px;text-align:center} .ce-grid .ad{width:36px;text-align:center}
+.ce-grid .star{border:none;background:none;font-size:19px;color:var(--n300);cursor:pointer;padding:6px}
+.ce-grid .star.on{color:var(--orange)} .ce-grid .star:hover{color:var(--orange-ink)}
+.ce-grid .x{border:none;background:none;color:var(--n400);font-size:19px;cursor:pointer;padding:4px 6px;line-height:1}
+.ce-grid .x:hover{color:#D64545}
+.ce-grid .cdot{position:relative;width:16px;height:16px;flex:none;cursor:pointer;display:block;margin:0!important}
+.ce-grid .cdot input{position:absolute;inset:0;opacity:0;width:16px!important;height:16px;padding:0!important;cursor:pointer}
+.ce-grid .cdot i{display:block;width:16px;height:16px;border-radius:50%;border:1px solid rgba(12,26,46,.2)}
+.ce-add{display:flex;gap:6px;align-items:center;margin-top:8px}
+.ce-add button{font:inherit;font-size:14.5px;font-weight:700;color:var(--navy);background:var(--navy-tint);border:none;border-radius:999px;padding:9px 16px;cursor:pointer}
+.ce-add button:hover{background:color-mix(in srgb,var(--navy) 14%,#fff)}
+.ce-one{font-size:13.5px;color:var(--orange-ink);font-weight:700}
+.ce-tip{font-size:14px;line-height:1.65;color:var(--n600);background:var(--n050);border-radius:10px;padding:12px 14px;margin-top:12px}
+.ce-r .pvw{min-height:260px;padding:16px}
+.ce-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:14px;align-items:end}
+.ce-opts label{margin:0!important} .ce-opts .w{grid-column:1/-1}
+.ce-opts input[type=color]{width:100%;height:40px}
+.ce-maxnote{display:block;font-style:normal;font-size:12.5px;font-weight:700;color:var(--orange-ink);margin-top:3px}
+.ce-maxnote:empty{display:none}
+@media (max-width:820px){.cm.ce{grid-template-columns:1fr}.ce-types{grid-template-columns:repeat(4,1fr)}}
+/* 차트 위에 마우스를 올리면 '더블클릭 · 데이터 편집' 안내 */
+html.edit [data-block="chart"]:not(.fx){position:relative}
+html.edit [data-block="chart"]:hover::after{content:'더블클릭 · 데이터 편집';position:absolute;right:6px;top:6px;font-size:12px;font-weight:700;color:#fff;
+  background:var(--orange-ink);padding:5px 10px;border-radius:999px;pointer-events:none;font-family:'GmarketSans',sans-serif}
+.blk-tools button.hl{background:var(--orange);color:#2B1400}
+.blk-tools button.hl:hover{background:color-mix(in srgb,var(--orange) 85%,#fff)}
+
 /* ── 설정 패널 ── */
 .sp{position:fixed;top:0;right:0;width:var(--spw,400px);height:100%;z-index:90;background:#fff;border-left:1px solid var(--n200);
   overflow:auto;overflow-x:hidden;padding:0;display:none;box-shadow:-12px 0 40px rgba(12,26,46,.08);font-size:14px}
@@ -679,7 +728,7 @@ html.pm.pm-console .pm-exit{display:none!important}
 <section class="slide" id="s5" data-label="막대 차트">
   <p class="sub r" style="--i:0">연도별 추이 · 단위 %</p>
   <h2 class="r" style="--i:1">꾸준히 <span class="hl">늘고 있습니다</span></h2>
-  <div class="blk-chart r" style="--i:2" data-block="chart" data-spec='{"type":"bar","hi":4,"h":270,"max":100,"labels":["2022","2023","2024","2025"],"series":[{"name":"비율","values":[38,45,57,68],"raw":["38%","45%","57%","68%"]}]}'></div>
+  <div class="blk-chart r" style="--i:2" data-block="chart" data-spec='{"type":"bar","hi":4,"h":250,"max":100,"labels":["2022","2023","2024","2025"],"series":[{"name":"비율","values":[38,45,57,68],"raw":["38%","45%","57%","68%"]}]}'></div>
   <div class="keyline r" style="--i:3">흐름은 <b>분명합니다</b></div>
   <p class="fineprint r" style="--i:4"><span data-k="note"></span></p>
 </section>
@@ -1547,7 +1596,7 @@ html.pm.pm-console .pm-exit{display:none!important}
   function checkOver(){
     [].forEach.call(deck.querySelectorAll('.stage'),function(st){
       if(!st.offsetParent){ st.classList.remove('over'); return; }
-      var top=1e9, bot=-1e9, safeTop=st.parentNode.hasAttribute('data-step')?92:16, safeBot=SH-54;
+      var top=1e9, bot=-1e9, safeTop=st.parentNode.hasAttribute('data-step')?92:16, safeBot=SH-44;
       blocksOf(st).forEach(function(c){ if(getComputedStyle(c).position==='absolute'&&!c.classList.contains('fx')) return;
         var r=vrect(c,st); top=Math.min(top,r.y); bot=Math.max(bot,r.y+r.h); });
       st.classList.toggle('over',edit&&bot>-1e9&&(top<safeTop||bot>safeBot));
@@ -1679,8 +1728,8 @@ html.pm.pm-console .pm-exit{display:none!important}
     }
     var b=selBlk, isT=b.tagName==='TABLE', isC=b.getAttribute('data-block')==='chart', isI=b.classList.contains('blk-img');
     function B(a,l,c){ return '<button type="button" data-a="'+a+'"'+(c?' class="'+c+'"':'')+'>'+l+'</button>'; }
-    tools.innerHTML=B('up','↑ 위로')+B('down','↓ 아래로')+'<i></i>'+
-      (isC?B('data','데이터 편집')+'<i></i>':'')+
+    tools.innerHTML=(isC?B('data','📊 데이터 편집','hl')+'<i></i>':'')+B('up','↑ 위로')+B('down','↓ 아래로')+'<i></i>'+
+
       (isI?B('img','사진 바꾸기')+B('imgs','크기')+'<i></i>':'')+
       (b.querySelector('img')||isI?B('rot90','↻ 90°')+'<i></i>':'')+
       (+b.getAttribute('data-r')?B('rot0','회전 없애기')+'<i></i>':'')+
@@ -1776,6 +1825,11 @@ html.pm.pm-console .pm-exit{display:none!important}
     inp.click();
   }
   function imgBlock(src){ return el('<figure class="blk-img r"><img alt="" src="'+src+'"></figure>'); }
+  /* 차트 더블클릭 = 데이터 편집 */
+  deck.addEventListener('dblclick',function(e){
+    if(!edit) return; var c=e.target.closest&&e.target.closest('[data-block="chart"]'); if(!c||!deck.contains(c)) return;
+    e.preventDefault(); e.stopPropagation(); if(selBlk!==c) selectBlk(c); chartEditor(c);
+  });
   /* 사진 더블클릭 = 바꾸기 */
   deck.addEventListener('dblclick',function(e){
     if(!edit) return; var im=e.target.closest&&e.target.closest('img'); if(!im||!deck.contains(im)) return;
@@ -1798,43 +1852,101 @@ html.pm.pm-console .pm-exit{display:none!important}
       if(st.classList.contains('free')){ node.setAttribute('data-x',Math.round(dx-200)); node.setAttribute('data-y',Math.round(dy-120)); node.setAttribute('data-w',400); applyPos(node); placeTools(); }
     });
   });
+  /* ── 차트 편집 창: 엑셀 같은 표에 바로 입력 · 그림으로 종류 선택 · ★로 강조 · 붙여넣기 한 번에 ── */
+  var CT=[['bar','막대','<rect x="3" y="10" width="4" height="8"/><rect x="10" y="6" width="4" height="12"/><rect x="17" y="3" width="4" height="15"/>'],
+    ['hbar','가로 막대','<rect x="3" y="3" width="15" height="4"/><rect x="3" y="10" width="11" height="4"/><rect x="3" y="17" width="7" height="3"/>'],
+    ['stack','누적 막대','<rect x="4" y="9" width="5" height="9"/><rect x="4" y="4" width="5" height="5" opacity=".5"/><rect x="13" y="7" width="5" height="11"/><rect x="13" y="2" width="5" height="5" opacity=".5"/>'],
+    ['progress','진행 막대 %','<rect x="3" y="5" width="18" height="4" rx="2" opacity=".3"/><rect x="3" y="5" width="12" height="4" rx="2"/><rect x="3" y="13" width="18" height="4" rx="2" opacity=".3"/><rect x="3" y="13" width="7" height="4" rx="2"/>'],
+    ['line','꺾은선','<polyline points="3,16 9,10 14,13 21,4" fill="none" stroke="currentColor" stroke-width="2.4"/>'],
+    ['area','영역','<polygon points="3,18 3,14 9,9 14,12 21,5 21,18"/>'],
+    ['donut','도넛','<circle cx="12" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="30 14"/>'],
+    ['pie','원형','<path d="M12 11 L12 3 A8 8 0 1 1 5 15 Z"/>']];
   function chartEditor(blk){
-    var sp=JSON.parse(blk.getAttribute('data-spec')), back=document.createElement('div'); back.className='cm-back'; back.setAttribute('data-gen','');
-    var types=[['bar','막대'],['hbar','가로 막대'],['stack','누적 막대'],['progress','진행 막대 (%) · 첫 계열'],['line','꺾은선'],['area','영역'],['donut','도넛 · 첫 계열'],['pie','원형 · 첫 계열']];
-    var C0=cols(), pal=[0,1,2,3,4,5].map(function(i){ return (sp.pal&&sp.pal[i])||['','','#8A99AB','#536376','#B6C2CF','#DCE3EB'][i]; });
-    back.innerHTML='<div class="cm" role="dialog" aria-label="차트 데이터 편집"><h3>차트 데이터 편집</h3><div>'+
-      '<label><span>종류</span><select data-c="type">'+types.map(function(t){ return '<option value="'+t[0]+'"'+(t[0]===sp.type?' selected':'')+'>'+t[1]+'</option>'; }).join('')+'</select></label>'+
-      '<label><span>단위 (데이터에 45%처럼 직접 적어도 돼요)</span><input data-c="unit" value="'+esc(sp.unit||'')+'"></label>'+
-      '<label><span>강조할 항목 번호 (0 = 없음)</span><input type="number" min="0" data-c="hi" value="'+(+sp.hi||0)+'"></label>'+
-      '<label><span>최대값 (비우면 자동 · 퍼센트는 100)</span><input type="number" min="0" data-c="max" value="'+(+sp.max||'')+'"></label>'+
-      '<div class="cm-colors"><label><span>기본 색</span><input type="color" data-c="c1" value="'+(sp.c1||C0.navy)+'"></label>'+
-      '<label><span>강조 색</span><input type="color" data-c="c2" value="'+(sp.c2||C0.orange)+'"></label>'+
-      '<button type="button" class="lnk" data-c="reset">기본 색으로</button></div>'+
-      '<div class="cm-pal"><span>계열 · 조각 색 (여러 계열, 도넛·원형)</span><div>'+pal.map(function(c,i){ return '<input type="color" data-pal="'+i+'" value="'+(c||(i===0?C0.navy:C0.orange))+'"'+(sp.pal&&sp.pal[i]?' data-set="1"':'')+' title="'+(i+1)+'번째">'; }).join('')+'</div></div>'+
-      '<label><span>차트 높이</span><input type="range" min="180" max="460" step="20" data-c="h" value="'+(+sp.h||300)+'"></label>'+
-      '<label><span>데이터</span><textarea data-c="tsv" spellcheck="false">'+esc(specTSV(sp))+'</textarea></label>'+
-      '<p class="note">엑셀이나 구글 시트에서 표를 복사해 그대로 붙여넣으세요. 첫 줄은 계열 이름, 첫 칸은 항목 이름입니다. 45%, 1.2억처럼 적으면 적은 그대로 표시돼요.</p>'+
-      '</div><div class="pvw"></div><div class="acts"><button type="button" data-c="cancel">취소</button><button type="button" class="ok" data-c="ok">적용</button></div></div>';
+    var sp=JSON.parse(blk.getAttribute('data-spec')), C0=cols();
+    var G={type:sp.type||'bar', unit:sp.unit||'', hi:+sp.hi||0, h:+sp.h||300, max:+sp.max||0, c1:sp.c1||'', c2:sp.c2||'', pal:(sp.pal||[]).slice(),
+      names:(sp.series||[]).map(function(s){ return s.name; }),
+      rows:(sp.labels||[]).map(function(l,i){ return [l].concat((sp.series||[]).map(function(s){ var r=s.raw&&s.raw[i]; return (r!=null&&r!=='')?String(r):(s.values[i]==null?'':String(s.values[i])); })); })};
+    if(!G.names.length) G.names=['값']; if(!G.rows.length) G.rows=[['항목 1','0']];
+    var back=document.createElement('div'); back.className='cm-back'; back.setAttribute('data-gen','');
+    back.innerHTML='<div class="cm ce" role="dialog" aria-label="차트 편집"><header><h3>차트 편집</h3><p>표에 바로 입력하면 오른쪽에 바로 그려져요.</p></header>'+
+      '<div class="ce-l"><div class="ce-types">'+CT.map(function(t){ return '<button type="button" data-ty="'+t[0]+'"><svg viewBox="0 0 24 21" fill="currentColor">'+t[2]+'</svg><span>'+t[1]+'</span></button>'; }).join('')+'</div>'+
+      '<div class="ce-gw"><table class="ce-grid"></table></div>'+
+      '<div class="ce-add"><button type="button" data-ce="row">+ 항목 (행)</button><button type="button" data-ce="col">+ 계열 (열)</button><span class="ce-one"></span></div>'+
+      '<p class="ce-tip">💡 엑셀 · 구글 시트에서 표를 복사해 <b>아무 칸에나 붙여넣으면</b> 한 번에 채워져요. <b>45%</b> · <b>1.2억</b>처럼 적으면 적은 그대로 표시돼요. <b>★</b>을 누르면 그 항목이 강조돼요.</p></div>'+
+      '<div class="ce-r"><div class="pvw"></div>'+
+      '<div class="ce-opts"><label><span>단위 (모든 값 뒤에)</span><input data-o="unit" placeholder="예: %, 억원"></label>'+
+      '<label><span>최대값 (비우면 자동)</span><input type="number" min="0" data-o="max" placeholder="퍼센트면 100"><em class="ce-maxnote"></em></label>'+
+      '<label class="w"><span>차트 높이</span><input type="range" min="180" max="460" step="20" data-o="h"></label>'+
+      '<label><span>기본 색</span><input type="color" data-o="c1"></label><label><span>강조 색</span><input type="color" data-o="c2"></label>'+
+      '<button type="button" class="lnk" data-ce="reset">색 처음으로</button></div></div>'+
+      '<div class="acts"><button type="button" data-ce="cancel">취소</button><button type="button" class="ok" data-ce="ok">적용</button></div></div>';
     body.appendChild(back);
-    function read(){ var q=function(k){ return back.querySelector('[data-c="'+k+'"]').value; }, d=tsvData(q('tsv'));
-      var o={type:q('type'),unit:q('unit'),hi:+q('hi')||0,h:+q('h')||300,labels:d.labels,series:d.series};
-      if(+q('max')>0) o.max=+q('max');
-      var c1=back.querySelector('[data-c="c1"]'), c2=back.querySelector('[data-c="c2"]');
-      if(c1.getAttribute('data-set')) o.c1=c1.value; if(c2.getAttribute('data-set')) o.c2=c2.value;
-      var pl=[].map.call(back.querySelectorAll('[data-pal]'),function(x){ return x.getAttribute('data-set')?x.value:''; });
-      if(pl.some(Boolean)) o.pal=pl;
-      return o; }
-    function pv(){ back.querySelector('.pvw').innerHTML=chartSVG(read()); }
-    function close(){ back.parentNode&&back.parentNode.removeChild(back); }
-    if(sp.c1) back.querySelector('[data-c="c1"]').setAttribute('data-set','1'); if(sp.c2) back.querySelector('[data-c="c2"]').setAttribute('data-set','1');
-    back.addEventListener('input',function(e){ if(e.target.type==='color') e.target.setAttribute('data-set','1'); pv(); }); back.addEventListener('change',pv);
-    back.addEventListener('click',function(e){ var c=e.target.getAttribute&&e.target.getAttribute('data-c');
-      if(e.target===back||c==='cancel') close();
-      if(c==='reset'){ [].forEach.call(back.querySelectorAll('input[type=color]'),function(x){ x.removeAttribute('data-set'); });
-        back.querySelector('[data-c="c1"]').value=C0.navy; back.querySelector('[data-c="c2"]').value=C0.orange; pv(); }
-      if(c==='ok'){ blk.setAttribute('data-spec',JSON.stringify(read())); renderBlocks(blk.parentNode); close(); placeTools(); } });
-    back.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); e.stopPropagation(); });
-    pv(); back.querySelector('textarea').focus();
+    var grid=back.querySelector('.ce-grid'), pv=back.querySelector('.pvw');
+    var o=function(k){ return back.querySelector('[data-o="'+k+'"]'); };
+    o('unit').value=G.unit; o('max').value=G.max||''; o('h').value=G.h; o('c1').value=G.c1||C0.navy; o('c2').value=G.c2||C0.orange;
+    var single=function(){ return /^(donut|pie|progress)$/.test(G.type); };
+    function spec(){
+      var tsv=[['항목'].concat(G.names)].concat(G.rows).map(function(r){ return r.join('\t'); }).join('\n'), d=tsvData(tsv);
+      var x={type:G.type,unit:G.unit,hi:G.hi,h:G.h,labels:d.labels,series:d.series};
+      var dmax=0; x.series.forEach(function(s2){ s2.values.forEach(function(v){ if(v>dmax) dmax=v; }); });
+      if(G.max>0&&dmax<=G.max) x.max=G.max; var mh=back.querySelector('.ce-maxnote'); if(mh) mh.textContent=(G.max>0&&dmax>G.max)?'값이 최대값보다 커서 자동으로 맞췄어요':'';
+      if(G.c1) x.c1=G.c1; if(G.c2) x.c2=G.c2; if(G.pal.some(Boolean)) x.pal=G.pal.slice(0,6); return x;
+    }
+    function draw(){ pv.innerHTML=chartSVG(spec()); }
+    function colColor(i){ return G.pal[i]||(i===0?(G.c1||C0.navy):i===1?(G.c2||C0.orange):['#8A99AB','#536376','#B6C2CF','#DCE3EB'][(i-2)%4]); }
+    function render(){
+      [].forEach.call(back.querySelectorAll('[data-ty]'),function(b){ b.classList.toggle('on',b.getAttribute('data-ty')===G.type); });
+      back.querySelector('.ce-one').textContent=single()&&G.names.length>1?'이 종류는 첫 번째 계열만 그려요':'';
+      var h='<thead><tr><th class="st"></th><th class="lb">항목</th>'+G.names.map(function(n,i){
+          return '<th class="sv'+(single()&&i>0?' dim':'')+'"><div><label class="cdot" title="이 계열 색"><input type="color" data-pc="'+i+'" value="'+colColor(i)+'"><i style="background:'+colColor(i)+'"></i></label>'+
+            '<input data-nm="'+i+'" value="'+esc(n)+'" placeholder="계열 이름">'+(G.names.length>1?'<button type="button" class="x" data-dc="'+i+'" title="이 계열 지우기">×</button>':'')+'</div></th>'; }).join('')+'<th class="ad"></th></tr></thead><tbody>';
+      h+=G.rows.map(function(r,ri){ return '<tr><td class="st"><button type="button" class="star'+(G.hi===ri+1?' on':'')+'" data-hi="'+(ri+1)+'" title="이 항목 강조">★</button></td>'+
+          '<td class="lb"><input data-r="'+ri+'" data-c="0" value="'+esc(r[0])+'" placeholder="항목 이름"></td>'+
+          G.names.map(function(_,ci){ return '<td class="sv'+(single()&&ci>0?' dim':'')+'"><input data-r="'+ri+'" data-c="'+(ci+1)+'" value="'+esc(r[ci+1]==null?'':r[ci+1])+'" placeholder="0" inputmode="decimal"></td>'; }).join('')+
+          '<td class="ad">'+(G.rows.length>1?'<button type="button" class="x" data-dr="'+ri+'" title="이 행 지우기">×</button>':'')+'</td></tr>'; }).join('')+'</tbody>';
+      grid.innerHTML=h; draw();
+    }
+    function focusCell(r,c){ var x=grid.querySelector('[data-r="'+r+'"][data-c="'+c+'"]'); if(x){ x.focus(); x.select(); } }
+    function addRow(){ G.rows.push(['항목 '+(G.rows.length+1)].concat(G.names.map(function(){ return ''; }))); }
+    function addCol(){ G.names.push('계열 '+(G.names.length+1)); G.rows.forEach(function(r){ r.push(''); }); }
+    grid.addEventListener('input',function(e){ var t=e.target;
+      if(t.hasAttribute('data-r')) G.rows[+t.getAttribute('data-r')][+t.getAttribute('data-c')]=t.value;
+      else if(t.hasAttribute('data-nm')) G.names[+t.getAttribute('data-nm')]=t.value;
+      else if(t.hasAttribute('data-pc')){ var i=+t.getAttribute('data-pc'); G.pal[i]=t.value; t.nextSibling.style.background=t.value; if(i===0) o('c1').value=t.value; }
+      draw(); });
+    grid.addEventListener('keydown',function(e){ var t=e.target; e.stopPropagation(); if(!t.hasAttribute('data-r')) return; var r=+t.getAttribute('data-r'), c=+t.getAttribute('data-c');
+      if(e.key==='Enter'){ e.preventDefault(); if(r===G.rows.length-1){ addRow(); render(); } focusCell(e.shiftKey?Math.max(0,r-1):r+1,c); }
+      else if(e.key==='ArrowDown'&&r<G.rows.length-1){ e.preventDefault(); focusCell(r+1,c); }
+      else if(e.key==='ArrowUp'&&r>0){ e.preventDefault(); focusCell(r-1,c); } });
+    /* 붙여넣기: 여러 칸이면 그 칸부터 채우고, 첫 줄이 글자로 된 머리줄이면 표 전체를 바꿈 */
+    grid.addEventListener('paste',function(e){
+      var txt=(e.clipboardData||window.clipboardData).getData('text/plain'); if(!/\t|\n/.test(txt.trim())) return; e.preventDefault();
+      var lines=txt.replace(/\r/g,'').replace(/\n+$/,'').split('\n').map(function(l){ return l.split('\t'); });
+      var t=e.target, head=lines[0].slice(1).length&&lines[0].slice(1).every(function(x){ return x.trim()&&isNaN(parseFloat(x.replace(/[^0-9.\-]/g,'')))&&!/\d/.test(x); });
+      if(head&&lines.length>1){ G.names=lines[0].slice(1).map(function(x,i){ return x.trim()||('계열 '+(i+1)); });
+        G.rows=lines.slice(1).map(function(l){ var r=[(l[0]||'').trim()]; G.names.forEach(function(_,i){ r.push((l[i+1]||'').trim()); }); return r; }); G.hi=0; render(); toast('붙여넣은 표로 바꿨어요 · 항목 '+G.rows.length+'개, 계열 '+G.names.length+'개',2400); return; }
+      var r0=t.hasAttribute('data-r')?+t.getAttribute('data-r'):0, c0=t.hasAttribute('data-c')?+t.getAttribute('data-c'):1;
+      lines.forEach(function(l,i){ while(G.rows.length<=r0+i) addRow(); l.forEach(function(v,j){ var c=c0+j; while(G.names.length<c) addCol(); G.rows[r0+i][c]=v.trim(); }); });
+      render(); toast('붙여넣었어요',1200);
+    });
+    back.addEventListener('click',function(e){
+      var b=e.target.closest('button'); if(e.target===back){ return close(); } if(!b) return;
+      if(b.hasAttribute('data-ty')){ G.type=b.getAttribute('data-ty'); if(G.type==='progress'&&!G.max) { G.max=100; o('max').value=100; } return render(); }
+      if(b.hasAttribute('data-hi')){ var v=+b.getAttribute('data-hi'); G.hi=G.hi===v?0:v; return render(); }
+      if(b.hasAttribute('data-dr')){ G.rows.splice(+b.getAttribute('data-dr'),1); if(G.hi>G.rows.length) G.hi=0; return render(); }
+      if(b.hasAttribute('data-dc')){ var ci=+b.getAttribute('data-dc'); G.names.splice(ci,1); G.pal.splice(ci,1); G.rows.forEach(function(r){ r.splice(ci+1,1); }); return render(); }
+      var a=b.getAttribute('data-ce');
+      if(a==='row'){ addRow(); render(); return focusCell(G.rows.length-1,0); }
+      if(a==='col'){ addCol(); render(); var x=grid.querySelector('[data-nm="'+(G.names.length-1)+'"]'); if(x){ x.focus(); x.select(); } return; }
+      if(a==='reset'){ G.c1=''; G.c2=''; G.pal=[]; o('c1').value=C0.navy; o('c2').value=C0.orange; return render(); }
+      if(a==='cancel') return close();
+      if(a==='ok'){ blk.setAttribute('data-spec',JSON.stringify(spec())); renderBlocks(blk.parentNode); close(); placeTools(); }
+    });
+    back.querySelector('.ce-opts').addEventListener('input',function(e){ var k=e.target.getAttribute('data-o'); if(!k) return; var v=e.target.value;
+      if(k==='max') G.max=+v||0; else if(k==='h') G.h=+v; else if(k==='c1'){ G.c1=v; G.pal[0]=''; } else if(k==='c2'){ G.c2=v; G.pal[1]=''; } else G[k]=v; render(); });
+    function close(){ if(back.parentNode) back.parentNode.removeChild(back); }
+    back.addEventListener('keydown',function(e){ e.stopPropagation(); if(e.key==='Escape') close(); if((e.metaKey||e.ctrlKey)&&e.key==='Enter') back.querySelector('[data-ce="ok"]').click(); });
+    render(); focusCell(0,1);
   }
   /* 장 추가 갤러리 (설정 패널 · 삽입 바 공용) */
   function galleryHTML(){
@@ -2091,14 +2203,23 @@ html.pm.pm-console .pm-exit{display:none!important}
     if(csCells.length) clearCells();
     csAnchor=c; csActive=false;
   });
-  addEventListener('pointermove',function(e){
-    if(!csAnchor||!(e.buttons&1)) return; var tb=csAnchor.closest('table'), c=cellAt(e.clientX,e.clientY,tb); if(!c) return;
-    if(!csActive&&c!==csAnchor){ csActive=true; root.classList.add('cell-selecting'); }
+  /* 칸 범위 선택이 시작되면 그 장의 글자 편집을 잠깐 멈춰 브라우저의 글자 선택이 따라붙지 않게 함 */
+  var csStage=null;
+  function csBegin(){ csActive=true; root.classList.add('cell-selecting'); csStage=csAnchor.closest('.stage');
+    if(csStage) csStage.setAttribute('contenteditable','false'); if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); getSelection().removeAllRanges(); }
+  function csEnd(){ root.classList.remove('cell-selecting'); if(csStage&&edit) csStage.setAttribute('contenteditable','true'); csStage=null; getSelection().removeAllRanges(); }
+  function csMove(x,y){
+    if(!csAnchor) return; var tb=csAnchor.closest('table'), c=cellAt(x,y,tb); if(!c) return;
+    if(!csActive&&c!==csAnchor) csBegin();
     if(csActive){ paintCells(csAnchor,c); getSelection().removeAllRanges(); }
-  });
+  }
+  addEventListener('pointermove',function(e){ if(!csAnchor||!(e.buttons&1)) return; csMove(e.clientX,e.clientY); if(csActive) e.preventDefault(); });
+  addEventListener('mousemove',function(e){ if(csActive){ e.preventDefault(); } },true);
+  document.addEventListener('selectstart',function(e){ if(csActive) e.preventDefault(); },true);
+  document.addEventListener('selectionchange',function(){ if(csActive&&String(getSelection())) getSelection().removeAllRanges(); });
   addEventListener('pointerup',function(){
     if(!csAnchor) return; csLast=csAnchor;
-    if(csActive){ root.classList.remove('cell-selecting'); getSelection().removeAllRanges(); hideFmt(); showTPop(); }
+    if(csActive){ csEnd(); hideFmt(); showTPop(); }
     csAnchor=null; csActive=false;
   });
   function cellRows(){ var s=[]; csCells.forEach(function(c){ if(s.indexOf(c.parentNode)<0) s.push(c.parentNode); }); return s; }
@@ -2507,7 +2628,9 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<details><summary>표 · 차트</summary><ul><li>표: 칸을 눌러 바로 고쳐요. 도구 막대에서 + 행, + 열, − 행, − 열, 행 강조.</li>'+
       '<li><b>칸 범위 선택</b>: 표 칸에서 다른 칸으로 <b>드래그</b>하면(또는 <kbd>Shift</kbd>+클릭) 엑셀처럼 칸들이 선택되고 <b>표 서식 창</b>이 떠요. 글꼴 · 크기(pt) · 굵게 · 글자색 · 칸 색 · 정렬 · + / − 행 · + / − 열 · 행 강조 · 내용 지우기 · 서식 지우기. <kbd>Esc</kbd>로 선택 해제, <kbd>Delete</kbd>로 내용 지우기.</li>'+
       '<li>엑셀에서 여러 칸을 복사해 표의 칸에 붙여넣으면 그 칸부터 채워지고 모자란 행 · 열은 자동으로 늘어나요.</li>'+
-      '<li>차트: 선택 → [데이터 편집]. 엑셀 표를 그대로 붙여넣으면 돼요. 첫 줄 = 계열 이름, 첫 칸 = 항목 이름.</li>'+
+      '<li><b>차트 데이터</b>: 차트를 <b>더블클릭</b>(또는 도구 막대 [📊 데이터 편집])하면 엑셀 같은 표가 떠요. 칸에 바로 입력하면 오른쪽에 바로 그려져요.</li>'+
+      '<li>표 아래 [+ 항목] [+ 계열]로 늘리고 × 로 지워요. <kbd>Enter</kbd> = 아래 칸(마지막이면 새 줄). 엑셀 표를 복사해 아무 칸에 붙여넣으면 한 번에 채워져요.</li>'+
+      '<li><b>★</b>을 누르면 그 항목이 강조 색으로, 계열 이름 옆 <b>색 점</b>으로 계열 색을 바꿔요. 종류는 위쪽 그림 버튼으로 골라요. <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Enter</kbd> = 적용.</li>'+
       '<li>강조 항목 번호를 적으면 그 막대(조각)만 강조 색으로 칠해져요.</li>'+
       '<li><b>퍼센트</b>: 데이터에 45%처럼 적으면 적은 그대로 표시돼요. 최대값을 100으로 두면 막대 길이가 퍼센트와 딱 맞아요. [진행 막대 (%)]는 처음부터 100 기준이에요.</li>'+
       '<li>차트 종류: 막대, 가로 막대, 누적 막대, 진행 막대(%), 꺾은선, 영역, 도넛, 원형.</li>'+
