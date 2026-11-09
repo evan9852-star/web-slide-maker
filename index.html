@@ -505,7 +505,22 @@ html.cs-on .blk-tools,html.cs-on .fmt{visibility:hidden}
   font-family:'GmarketSans',-apple-system,sans-serif}
 .tpop.on{display:flex}
 .tpop .tr1,.tpop .tr2{display:flex;align-items:center;gap:2px;flex-wrap:nowrap}
-.tpop .tr2{border-top:1px solid rgba(255,255,255,.12);padding-top:3px}
+.tpop .tr2,.tpop .tr3{border-top:1px solid rgba(255,255,255,.12);padding-top:3px}
+.tpop .tr3{display:flex;align-items:center;gap:6px;padding-left:6px}
+.tpop .tr3 label{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.75);white-space:nowrap}
+.tpop .tr3 input{width:58px}
+.tpop .tr3 input:disabled{opacity:.4}
+.tpop button.dis{opacity:.35;cursor:not-allowed}
+.tpop .lk.on{background:var(--orange);color:#2B1400}
+html.edit.rz-col .ftbl td,html.edit.rz-col .ftbl th,html.rz-drag.rz-col *{cursor:col-resize!important}
+html.edit.rz-row .ftbl td,html.edit.rz-row .ftbl th,html.rz-drag.rz-row *{cursor:row-resize!important}
+html.rz-drag,html.rz-drag *{user-select:none!important;-webkit-user-select:none!important}
+.rz-lbl{position:fixed;z-index:99;display:none;font-family:'GmarketSans',sans-serif;font-size:12.5px;font-weight:700;color:#fff;background:var(--n900);padding:5px 10px;border-radius:999px;pointer-events:none}
+.rz-lbl.on{display:block}
+.ftbl.fz td,.ftbl.fz th{padding-top:0;padding-bottom:0;vertical-align:middle}
+.ftbl.fz .cw{max-height:var(--rh,none);overflow:hidden}
+html.edit .ftbl.locked{outline:1px dashed var(--n300);outline-offset:4px}
+html.edit .ftbl.locked::before{content:''}
 .tpop button{font:inherit;font-size:12.5px;font-weight:700;color:#fff;background:transparent;border:none;border-radius:9px;padding:7px 9px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
 .tpop button:hover,.tpop button.on{background:rgba(255,255,255,.16)}
 .tpop .ff span{max-width:120px;overflow:hidden;text-overflow:ellipsis;font-size:13.5px}
@@ -1517,7 +1532,7 @@ html.pm.pm-console .pm-exit{display:none!important}
   /* 표: % 막대 · 색 */
   function renderTables(scope){
     [].forEach.call((scope||document).querySelectorAll('table.ftbl'),function(tb){
-      var on=tb.classList.contains('pbar');
+      wrapCells(tb); var on=tb.classList.contains('pbar');
       [].forEach.call(tb.querySelectorAll('td'),function(td){
         var m=on&&/^\s*(-?\d+(?:\.\d+)?)\s*%\s*$/.exec(td.textContent);
         if(m){ td.classList.add('pc'); td.style.setProperty('--p',Math.max(0,Math.min(100,+m[1]))+'%'); }
@@ -1787,6 +1802,7 @@ html.pm.pm-console .pm-exit{display:none!important}
     back.addEventListener('keydown',function(e){ e.stopPropagation(); if(e.key==='Escape') done(); });
   }
   function tableOp(tb,act){
+    if(isLocked(tb)&&/^(r\+|r-|c\+|c-)$/.test(act)) return lockMsg();
     var cell=(lastCell&&tb.contains(lastCell))?lastCell:tb.querySelector('tbody td'); if(!cell) return;
     var row=cell.parentNode, ci=[].indexOf.call(row.children,cell), body=tb.tBodies[0];
     if(act==='r+'){ var nr=(row.parentNode.tagName==='THEAD'?body.rows[0]:row).cloneNode(true); nr.classList.remove('hero');
@@ -2236,13 +2252,19 @@ html.pm.pm-console .pm-exit{display:none!important}
         '<button type="button" data-t="bg" title="칸 배경색"><span class="sq"></span>칸 색</button></div>'+
         '<div class="tr2"><button type="button" data-t="al-left" title="왼쪽 정렬">⇤ 왼쪽</button><button type="button" data-t="al-center" title="가운데 정렬">↔ 가운데</button><button type="button" data-t="al-right" title="오른쪽 정렬">오른쪽 ⇥</button><i></i>'+
         '<button type="button" data-t="r+">+ 행</button><button type="button" data-t="r-">− 행</button><button type="button" data-t="c+">+ 열</button><button type="button" data-t="c-">− 열</button><i></i>'+
-        '<button type="button" data-t="hero">행 강조</button><button type="button" data-t="empty">내용 지우기</button><button type="button" data-t="clear">서식 지우기</button></div>';
+        '<button type="button" data-t="hero">행 강조</button><button type="button" data-t="empty">내용 지우기</button><button type="button" data-t="clear">서식 지우기</button></div>'+
+        '<div class="tr3"><label>열 너비 <input type="number" min="0.8" max="34" step="0.1" data-t="cw"> cm</label><label>행 높이 <input type="number" min="0.5" max="19" step="0.1" data-t="rh"> cm</label><i></i>'+
+        '<button type="button" data-t="lock" class="lk">🔒 표 잠금</button></div>';
       body.appendChild(tPop);
       tPop.addEventListener('mousedown',function(e){ if(e.target.tagName!=='INPUT') e.preventDefault(); });
       tPop.addEventListener('pointerdown',function(e){ e.stopPropagation(); });
       tPop.addEventListener('click',onTPop);
+      [['cw',function(v){ var tb=csCells[0].closest('table'); if(isLocked(tb)) return lockMsg(); cellCols().forEach(function(ci){ setColW(tb,ci,cmPx(v)); }); }],
+       ['rh',function(v){ var tb=csCells[0].closest('table'); if(isLocked(tb)) return lockMsg(); freezeTable(tb); cellRows().forEach(function(tr){ setRowH(tr,cmPx(v)); }); }]].forEach(function(pr){
+        var inp=tPop.querySelector('[data-t="'+pr[0]+'"]'); function go(){ var v=+inp.value; if(v>0){ pr[1](v); renderTables(); checkOver(); posFrame(); placeTPop(); commit(); } }
+        inp.addEventListener('change',go); inp.addEventListener('keydown',function(e){ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); go(); } }); });
       var szi=tPop.querySelector('[data-t="sz"]');
-      function setSz(){ var v=+szi.value; if(v>=6) eachCell(function(c){ c.style.fontSize=ptPx(v); }); }
+      function setSz(){ var v=+szi.value; if(v>=6){ freezeTable(csCells[0].closest('table')); eachCell(function(c){ c.style.fontSize=ptPx(v); }); } }
       szi.addEventListener('change',setSz); szi.addEventListener('keydown',function(e){ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); setSz(); } });
     }
     paintTPop(); tPop.classList.add('on'); root.classList.add('cs-on'); placeTPop();
@@ -2260,6 +2282,11 @@ html.pm.pm-console .pm-exit{display:none!important}
     tPop.querySelector('[data-t="sz"]').value=Math.round(parseFloat(cs.fontSize)*0.75*2)/2;
     tPop.querySelector('.dot').style.background=cs.color; tPop.querySelector('.sq').style.background=cs.backgroundColor;
     tPop.querySelector('[data-t="b"]').classList.toggle('on',+cs.fontWeight>=700);
+    var tb4=c.closest('table'), s4=tbScale(tb4), lk=isLocked(tb4);
+    tPop.querySelector('[data-t="cw"]').value=pxCm(c.getBoundingClientRect().width/s4); tPop.querySelector('[data-t="rh"]').value=pxCm(c.parentNode.getBoundingClientRect().height/s4);
+    var lb=tPop.querySelector('[data-t="lock"]'); lb.textContent=lk?'🔓 잠금 풀기':'🔒 표 잠금'; lb.classList.toggle('on',lk);
+    ['r+','r-','c+','c-'].forEach(function(k){ tPop.querySelector('[data-t="'+k+'"]').classList.toggle('dis',lk); });
+    [].forEach.call(tPop.querySelectorAll('[data-t="cw"],[data-t="rh"]'),function(x){ x.disabled=lk; });
     ['left','center','right'].forEach(function(a){ tPop.querySelector('[data-t="al-'+a+'"]').classList.toggle('on',cs.textAlign===a||(a==='left'&&cs.textAlign==='start')); });
   }
   function hideTPop(){ if(tPop) tPop.classList.remove('on'); if(tColorPop){ tColorPop.parentNode.removeChild(tColorPop); tColorPop=null; } }
@@ -2277,11 +2304,13 @@ html.pm.pm-console .pm-exit{display:none!important}
   }
   function onTPop(e){
     var b=e.target.closest('[data-t]'); if(!b||!csCells.length) return; var t=b.getAttribute('data-t'), tb=csCells[0].closest('table'), body0=tb.tBodies[0];
-    if(t==='font') return fontPop(b,fontKeyOf(getComputedStyle(csCells[0]).fontFamily),function(k){ eachCell(function(c){
+    if(t==='font') return fontPop(b,fontKeyOf(getComputedStyle(csCells[0]).fontFamily),function(k){ freezeTable(tb); eachCell(function(c){
         if(k){ var f=fontStack(k); c.style.fontFamily=f; c.style.setProperty('--font-head',f); c.style.setProperty('--font-body',f); }
         else { c.style.removeProperty('font-family'); c.style.removeProperty('--font-head'); c.style.removeProperty('--font-body'); } }); paintTPop(); },true);
-    if(t==='sz-'||t==='sz+'){ var pt=Math.round(parseFloat(getComputedStyle(csCells[0]).fontSize)*0.75), st=pt<20?1:2, np=Math.max(6,pt+(t==='sz+'?st:-st)); eachCell(function(c){ c.style.fontSize=ptPx(np); }); paintTPop(); return; }
-    if(t==='b'){ var on=+getComputedStyle(csCells[0]).fontWeight>=700; eachCell(function(c){ c.style.fontWeight=on?'300':'800'; }); paintTPop(); return; }
+    if(t==='sz-'||t==='sz+'){ freezeTable(tb); var pt=Math.round(parseFloat(getComputedStyle(csCells[0]).fontSize)*0.75), st=pt<20?1:2, np=Math.max(6,pt+(t==='sz+'?st:-st)); eachCell(function(c){ c.style.fontSize=ptPx(np); }); paintTPop(); return; }
+    if(t==='lock'){ freezeTable(tb); tb.classList.toggle('locked'); toast(isLocked(tb)?'🔒 표를 잠갔어요 · 칸 크기와 행·열이 바뀌지 않아요 (글자는 고칠 수 있어요)':'잠금을 풀었어요',2600); paintTPop(); commit(); return; }
+    if(/^(r\+|r-|c\+|c-)$/.test(t)&&isLocked(tb)) return lockMsg();
+    if(t==='b'){ freezeTable(tb); var on=+getComputedStyle(csCells[0]).fontWeight>=700; eachCell(function(c){ c.style.fontWeight=on?'300':'800'; }); paintTPop(); return; }
     if(t==='color') return tColor(b,function(v){ eachCell(function(c){ if(v){ c.style.color=v; c.style.setProperty('--t-num',v); c.style.setProperty('--t-hero-ink',v); } else { c.style.removeProperty('color'); c.style.removeProperty('--t-num'); c.style.removeProperty('--t-hero-ink'); } }); paintTPop(); });
     if(t==='bg') return tColor(b,function(v){ eachCell(function(c){ if(v) c.style.backgroundColor=v; else c.style.removeProperty('background-color'); }); paintTPop(); });
     if(t.indexOf('al-')===0){ var al=t.slice(3); eachCell(function(c){ c.style.textAlign=al; }); paintTPop(); return; }
@@ -2296,15 +2325,77 @@ html.pm.pm-console .pm-exit{display:none!important}
       del.forEach(function(tr){ body0.removeChild(tr); }); clearCells(); renderTables(); checkOver(); posFrame(); commit(); return; }
     if(t==='c+'){ var cols=cellCols(), ci=cols[cols.length-1];
       [].forEach.call(tb.rows,function(tr){ var ref2=tr.children[ci], nc=document.createElement(ref2?ref2.tagName:'TD'); nc.textContent=tr.parentNode.tagName==='THEAD'?'제목':''; tr.insertBefore(nc,ref2?ref2.nextSibling:null); });
-      [].forEach.call(tb.querySelectorAll('th[style]'),function(th){ th.style.width=''; }); eachCell(function(){}); placeTPop(); return; }
+      [].forEach.call(tb.querySelectorAll('th[style]'),function(th){ th.style.width=''; });
+      var cg=tb.querySelector('colgroup'); if(cg){ var ref3=cg.children[ci], nc2=document.createElement('col'); nc2.style.width='140px'; cg.insertBefore(nc2,ref3?ref3.nextSibling:null); syncTbWidth(tb); }
+      eachCell(function(){}); placeTPop(); return; }
     if(t==='c-'){ var cs2=cellCols(); if(tb.rows[0].children.length-cs2.length<1){ toast('표에는 열이 하나는 있어야 해요'); return; }
       [].forEach.call(tb.rows,function(tr){ cs2.slice().reverse().forEach(function(ci2){ if(tr.children[ci2]) tr.removeChild(tr.children[ci2]); }); });
+      var cg2=tb.querySelector('colgroup'); if(cg2){ cs2.slice().reverse().forEach(function(ci2){ if(cg2.children[ci2]) cg2.removeChild(cg2.children[ci2]); }); syncTbWidth(tb); }
       clearCells(); renderTables(); checkOver(); posFrame(); commit(); return; }
   }
   addEventListener('scroll',function(){ if(tPop&&tPop.classList.contains('on')){ if(tColorPop){ tColorPop.parentNode.removeChild(tColorPop); tColorPop=null; } placeTPop(); } },{passive:true,capture:true});
   addEventListener('keydown',function(e){ if(e.key==='Escape'&&csCells.length){ clearCells(); }
     if((e.key==='Backspace'||e.key==='Delete')&&csCells.length&&!(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName))&&!String(getSelection())){ e.preventDefault(); eachCell(function(c){ c.textContent=''; }); } },true);
 
+  /* ── 표 칸 크기: 고정(글자 크기를 바꿔도 칸은 그대로) · 경계선 끌어서 조절 · cm 수치 · 표 잠금 ── */
+  function pxCm(px){ return Math.round(px*2.54/96*10)/10; }
+  function cmPx(cm){ return cm*96/2.54; }
+  function tbScale(tb){ var st=tb.closest('.stage'); return st?scaleOf(st):1; }
+  function freezeTable(tb){
+    if(tb.classList.contains('fz')) return;
+    var s=tbScale(tb), r0=tb.rows[0]; if(!r0) return;
+    var ws=[].map.call(r0.children,function(c){ return c.getBoundingClientRect().width/s; }), hs=[].map.call(tb.rows,function(tr){ return tr.getBoundingClientRect().height/s; });
+    var old=tb.querySelector('colgroup'); if(old) old.parentNode.removeChild(old);
+    var cg=document.createElement('colgroup'); ws.forEach(function(w){ var col=document.createElement('col'); col.style.width=w.toFixed(1)+'px'; cg.appendChild(col); });
+    tb.insertBefore(cg,tb.firstChild);
+    [].forEach.call(tb.querySelectorAll('th[style],td[style]'),function(c){ c.style.removeProperty('width'); });
+    [].forEach.call(tb.rows,function(tr,i){ setRowH(tr,hs[i]); });
+    tb.style.tableLayout='fixed'; tb.style.width=ws.reduce(function(a,b){ return a+b; },0).toFixed(1)+'px'; tb.classList.add('fz'); wrapCells(tb);
+  }
+  function tbCols(tb){ var cg=tb.querySelector('colgroup'); return cg?[].slice.call(cg.children):[]; }
+  function syncTbWidth(tb){ var sum=tbCols(tb).reduce(function(a,c){ return a+(parseFloat(c.style.width)||0); },0); if(sum) tb.style.width=sum.toFixed(1)+'px'; }
+  function setColW(tb,ci,px){ freezeTable(tb); var c=tbCols(tb)[ci]; if(!c) return; c.style.width=Math.max(30,px).toFixed(1)+'px'; syncTbWidth(tb); }
+  function setRowH(tr,px){ var h=Math.max(20,px).toFixed(1)+'px'; tr.style.height=h; tr.style.setProperty('--rh',h); }
+  /* 고정된 표: 칸 내용을 .cw로 감싸 행 높이를 넘는 글자는 칸 안에서 잘림 → 글자를 키워도 칸 크기는 그대로 */
+  function wrapCells(tb){
+    if(!tb.classList.contains('fz')) return;
+    [].forEach.call(tb.querySelectorAll('td,th'),function(c){
+      if(c.children.length===1&&c.firstElementChild.classList.contains('cw')&&c.childNodes.length===1) return;
+      var w=document.createElement('div'); w.className='cw'; while(c.firstChild) w.appendChild(c.firstChild); c.appendChild(w);
+    });
+  }
+  function isLocked(tb){ return tb&&tb.classList.contains('locked'); }
+  function lockMsg(){ toast('🔒 표가 잠겨 있어요 · 표 서식 창의 [잠금 풀기]로 풀 수 있어요',2600); }
+  /* 경계선 끌기: 칸의 오른쪽 경계 = 열 너비, 아래 경계 = 행 높이 */
+  var rzLbl=null;
+  function edgeAt(e){
+    var c=e.target.closest&&e.target.closest('table.ftbl td, table.ftbl th'); if(!c) return null; var tb=c.closest('table'); if(isLocked(tb)) return null;
+    var r=c.getBoundingClientRect(), E=6;
+    if(e.clientX>r.right-E&&e.clientX<r.right+2) return {k:'col',c:c,tb:tb};
+    if(e.clientY>r.bottom-E&&e.clientY<r.bottom+2) return {k:'row',c:c,tb:tb};
+    return null;
+  }
+  deck.addEventListener('pointermove',function(e){ if(!edit||e.buttons) return; var g=edgeAt(e); root.classList.toggle('rz-col',!!g&&g.k==='col'); root.classList.toggle('rz-row',!!g&&g.k==='row'); });
+  deck.addEventListener('pointerdown',function(e){
+    if(!edit||e.button!==0) return; var g=edgeAt(e); if(!g) return;
+    e.preventDefault(); e.stopPropagation(); freezeTable(g.tb);
+    var s=tbScale(g.tb), sx=e.clientX, sy=e.clientY, ci=cellPos(g.c).c, tr=g.c.parentNode;
+    var w0=parseFloat(tbCols(g.tb)[ci].style.width)||0, h0=parseFloat(tr.style.height)||tr.getBoundingClientRect().height/s;
+    if(!rzLbl){ rzLbl=document.createElement('div'); rzLbl.className='rz-lbl'; rzLbl.setAttribute('data-gen',''); body.appendChild(rzLbl); }
+    root.classList.add('rz-drag');
+    function mv(ev){
+      if(g.k==='col'){ var w=w0+(ev.clientX-sx)/s; setColW(g.tb,ci,w); rzLbl.textContent='열 너비 '+pxCm(Math.max(30,w))+' cm'; }
+      else { var h=h0+(ev.clientY-sy)/s; setRowH(tr,h); rzLbl.textContent='행 높이 '+pxCm(Math.max(20,h))+' cm'; }
+      rzLbl.style.left=(ev.clientX+14)+'px'; rzLbl.style.top=(ev.clientY+14)+'px'; rzLbl.classList.add('on'); posFrame(); placeTPop();
+    }
+    function up(){ removeEventListener('pointermove',mv); removeEventListener('pointerup',up); rzLbl.classList.remove('on'); root.classList.remove('rz-drag'); checkOver(); placeTools(); if(csCells.length) paintTPop(); }
+    addEventListener('pointermove',mv); addEventListener('pointerup',up);
+  },true);
+  /* 우클릭: 그 칸을 선택하고 표 서식 창 (열 너비 · 행 높이를 cm로) */
+  deck.addEventListener('contextmenu',function(e){
+    if(!edit) return; var c=e.target.closest&&e.target.closest('table.ftbl td, table.ftbl th'); if(!c) return;
+    e.preventDefault(); if(!c.classList.contains('csel')){ clearCells(); paintCells(c,c); } csLast=c; getSelection().removeAllRanges(); hideFmt(); showTPop();
+  });
   /* ── 설정 패널 ── */
   var sp=document.getElementById('sp')||document.createElement('aside');
   function get(path){ return path.split('.').reduce(function(o,k){ return o==null?o:o[k]; },CFG); }
@@ -2627,6 +2718,8 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<li>* 표시 글꼴은 그 PC에 설치돼 있어야 보여요. 어디서나 같게 보이려면 [글꼴 파일 불러오기]로 .woff2 · .ttf · .otf 파일을 넣으세요. 파일 안에 함께 저장돼요.</li></ul></details>'+
       '<details><summary>표 · 차트</summary><ul><li>표: 칸을 눌러 바로 고쳐요. 도구 막대에서 + 행, + 열, − 행, − 열, 행 강조.</li>'+
       '<li><b>칸 범위 선택</b>: 표 칸에서 다른 칸으로 <b>드래그</b>하면(또는 <kbd>Shift</kbd>+클릭) 엑셀처럼 칸들이 선택되고 <b>표 서식 창</b>이 떠요. 글꼴 · 크기(pt) · 굵게 · 글자색 · 칸 색 · 정렬 · + / − 행 · + / − 열 · 행 강조 · 내용 지우기 · 서식 지우기. <kbd>Esc</kbd>로 선택 해제, <kbd>Delete</kbd>로 내용 지우기.</li>'+
+      '<li><b>칸 크기</b>: 칸의 오른쪽 경계선을 끌면 열 너비, 아래쪽 경계선을 끌면 행 높이가 바뀌어요. 칸을 <b>우클릭</b>하면 표 서식 창 맨 아래에서 열 너비 · 행 높이를 <b>cm</b>로 적을 수 있어요.</li>'+
+      '<li>칸의 글자 크기를 바꿔도 칸 크기는 그대로예요. <b>🔒 표 잠금</b>을 누르면 칸 크기와 행 · 열 추가 · 삭제가 막혀요(글자는 고칠 수 있어요).</li>'+
       '<li>엑셀에서 여러 칸을 복사해 표의 칸에 붙여넣으면 그 칸부터 채워지고 모자란 행 · 열은 자동으로 늘어나요.</li>'+
       '<li><b>차트 데이터</b>: 차트를 <b>더블클릭</b>(또는 도구 막대 [📊 데이터 편집])하면 엑셀 같은 표가 떠요. 칸에 바로 입력하면 오른쪽에 바로 그려져요.</li>'+
       '<li>표 아래 [+ 항목] [+ 계열]로 늘리고 × 로 지워요. <kbd>Enter</kbd> = 아래 칸(마지막이면 새 줄). 엑셀 표를 복사해 아무 칸에 붙여넣으면 한 번에 채워져요.</li>'+
