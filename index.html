@@ -9,7 +9,7 @@
 <!-- ============================================================
   ① 설정값 — 화면 오른쪽 위 [설정] 버튼으로 바꾸는 게 가장 쉽습니다.
      여기를 직접 고쳐도 됩니다.
-     [완성본 저장] = 최종 파일 (설정·편집 도구 없음, 발표·PDF만)
+     [내보내기 ▾ → 완성본 파일] = 최종 파일 (설정·편집 도구 없음, 발표·PDF만)
      [설정 > 작업본 저장] = 나중에 이어서 고칠 파일 (도구 포함)
   ============================================================ -->
 <script type="application/json" id="cfg">
@@ -581,6 +581,12 @@ html.edit [data-block="chart"]:hover::after{content:'더블클릭 · 데이터 �
 .blk-tools button.hl:hover{background:color-mix(in srgb,var(--orange) 85%,#fff)}
 
 /* ══ 작업 화면 v2 ══ */
+html.tool #bPrint,html.tool #bSave{display:none} html:not(.tool) #bExport{display:none}
+.exmenu{position:fixed;z-index:96;min-width:240px;background:#fff;border:1px solid var(--n200);border-radius:8px;box-shadow:0 12px 32px rgba(12,26,46,.18);padding:6px;
+  font-family:'GmarketSans',-apple-system,sans-serif}
+.exmenu button{display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;font-weight:700;color:var(--n900);background:#fff;border:none;border-radius:6px;padding:10px 12px;cursor:pointer}
+.exmenu button:hover{background:var(--n050)} .exmenu button small{display:block;font-size:11.5px;font-weight:600;color:var(--n500);margin-top:3px}
+@media print{.exmenu{display:none!important}}
 /* 편집 도구 화면은 알약 모양 대신 각진 버튼 (완성본 · 슬라이드 디자인은 그대로) */
 html.tool .toolbar button,html.tool .docbar,html.tool .docbar *,html.tool .ins,html.tool .ins button,html.tool .blk-tools,html.tool .blk-tools button,html.tool .blk-tools select,
 html.tool .toast,html.tool .sp .btn,html.tool .rz-lbl,html.tool .blk-frame .deg,html.tool .hp .hz button,html.tool .hp .x,html.tool .hp .hs,html.tool .ce-add button,html.tool .cpop .none,
@@ -812,6 +818,7 @@ html.pm.pm-console .pm-exit{display:none!important}
   <button type="button" id="bPm">발표자 모드</button>
   <button type="button" id="bPrint">PDF / 인쇄</button>
   <button type="button" id="bSave">완성본 저장</button>
+  <button type="button" id="bExport" aria-haspopup="menu" aria-expanded="false">내보내기 ▾</button>
 </div>
 <button type="button" class="pm-exit" id="bPmExit">발표 종료</button>
 
@@ -2533,7 +2540,7 @@ html.pm.pm-console .pm-exit{display:none!important}
     var h='<h3>설정 <button type="button" class="btn" data-act="close">닫기</button></h3>'+
 
       '<p class="note">입력하면 바로 반영됩니다. 이 브라우저에는 저장되지 않으니 파일로 남기세요. ⌘/Ctrl+Z로 되돌릴 수 있어요.</p>'+
-      '<div class="btns"><button type="button" class="btn" data-act="final">완성본 저장</button><button type="button" class="btn" data-act="work">작업본 저장 (⌘S)</button><button type="button" class="btn" data-act="saveas">다른 이름으로</button><button type="button" class="btn" data-act="open">작업본 불러오기</button></div>'+
+      '<div class="btns"><button type="button" class="btn" data-act="final">완성본 내보내기</button><button type="button" class="btn" data-act="work">작업본 저장 (⌘S)</button><button type="button" class="btn" data-act="saveas">다른 이름으로</button><button type="button" class="btn" data-act="open">작업본 불러오기</button></div>'+
       '<p class="note">작업본은 PPT처럼 ⌘/Ctrl+S로 같은 파일에 덮어써요 (크롬 · 엣지). 처음 한 번만 저장 위치를 물어봐요.</p>'+
       '<p class="note">🔒 이 도구는 인터넷으로 아무것도 보내지 않아요. 편집한 내용은 이 브라우저 안에만 있고, 저장하면 내 컴퓨터로만 내려받아져요.</p>'+
       '<p class="note">완성본에는 설정·글 고치기·저장 버튼이 없고 발표, PDF만 남습니다. 꺼둔 장은 빠집니다.</p>';
@@ -2732,7 +2739,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       out.final=true;
       out.slides.forEach(function(it){ if(!it.on){ var x=cl.querySelector('#'+it.id); if(x) x.parentNode.removeChild(x); } });
       out.slides=out.slides.filter(function(it){ return it.on; });
-      [].forEach.call(cl.querySelectorAll('#bHelp,#bSet,#bEdit,#bSave,#sp,template'),function(n){ n.parentNode.removeChild(n); });
+      [].forEach.call(cl.querySelectorAll('#bHelp,#bSet,#bEdit,#bSave,#bExport,#sp,template'),function(n){ n.parentNode.removeChild(n); });
       var pmb=cl.querySelector('#bPm'); if(pmb){ pmb.textContent='발표자 모드'; pmb.classList.remove('primary'); }
     }
     cl.querySelector('#cfg').textContent='\n'+JSON.stringify(out,null,2)+'\n';
@@ -2754,7 +2761,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       pick.then(function(h){ return h.createWritable().then(function(w){ return w.write(html).then(function(){ return w.close(); }); }).then(function(){
           var first=!fileHandle||asNew; fileHandle=h; savedHI=hiNow; paintSaveState();
           toast(first?'"'+h.name+'"에 저장했어요. 이제 ⌘/Ctrl+S만 누르면 이 파일에 바로 덮어써요.':'저장했어요 · '+h.name,first?5200:1600); }); })
-      .catch(function(e){ if(e&&e.name==='AbortError') return; toast('저장하지 못했어요. 다시 시도하거나 [완성본 저장]을 써 주세요.'); });
+      .catch(function(e){ if(e&&e.name==='AbortError') return; toast('저장하지 못했어요. 다시 시도해 주세요.'); });
       return;
     }
     var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download=nm;
@@ -3045,9 +3052,25 @@ html.pm.pm-console .pm-exit{display:none!important}
   }
   document.addEventListener('selectionchange',function(){ if(edit&&TOOL&&!(insp&&insp.contains(document.activeElement))) schedInsp(); });
   addEventListener('scroll',function(){ if(edit&&TOOL){ markThumbCur(); schedInsp(); } },{passive:true});
+  /* 내보내기 ▾ : 완성본 파일(HTML) · PDF / 인쇄 — 작업 파일 저장은 왼쪽 위 [저장] 한 곳 */
+  var exMenu=null;
+  function closeEx(){ if(exMenu){ exMenu.parentNode.removeChild(exMenu); exMenu=null; } var b=document.getElementById('bExport'); if(b) b.setAttribute('aria-expanded','false'); }
+  function openEx(btn){
+    if(exMenu) return closeEx();
+    exMenu=document.createElement('div'); exMenu.className='exmenu'; exMenu.setAttribute('data-gen',''); exMenu.setAttribute('role','menu');
+    exMenu.innerHTML='<button type="button" role="menuitem" data-x="final">완성본 파일 (HTML)<small>보여주기용 · 편집 도구 없이 발표 · PDF만</small></button>'+
+      '<button type="button" role="menuitem" data-x="pdf">PDF / 인쇄<small>인쇄 창에서 \'PDF로 저장\'을 고르세요</small></button>';
+    body.appendChild(exMenu); btn.setAttribute('aria-expanded','true');
+    var r=btn.getBoundingClientRect(); exMenu.style.top=(r.bottom+6)+'px'; exMenu.style.left=Math.max(8,Math.min(innerWidth-exMenu.offsetWidth-8,r.right-exMenu.offsetWidth))+'px';
+    exMenu.addEventListener('click',function(e){ var b=e.target.closest('[data-x]'); if(!b) return; var x=b.getAttribute('data-x'); closeEx();
+      if(x==='final') saveHTML(true); else document.getElementById('bPrint').click(); });
+  }
+  document.addEventListener('mousedown',function(e){ if(exMenu&&!exMenu.contains(e.target)&&e.target.id!=='bExport') closeEx(); },true);
+  addEventListener('keydown',function(e){ if(e.key==='Escape'&&exMenu) closeEx(); });
   function initTool(){
     if(!TOOL) return; root.classList.add('tool');
     var pmb=document.getElementById('bPm'); if(pmb){ pmb.textContent='▶ 발표 시작'; pmb.classList.add('primary'); }
+    var exb=document.getElementById('bExport'); if(exb) exb.onclick=function(){ openEx(exb); };
     buildDocbar(); buildInsp(); buildThGrip(); buildIpGrip(); toggleEdit(true,true); buildThumbs(); paintInsp();
   }
 
@@ -3062,7 +3085,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<p class="hs-none" hidden>찾는 내용이 없어요. 다른 낱말로 검색해 보세요.</p>'+
       '<div class="steps"><div><b>1</b><strong>설정</strong>제목, 작성자, 글꼴, 색, 화면 비율을 정해요.</div>'+
       '<div><b>2</b><strong>편집</strong>글자를 눌러 고치고, 장과 블록을 추가해요.</div>'+
-      '<div><b>3</b><strong>완성본 저장</strong>편집 도구가 빠진 깨끗한 파일이 만들어져요.</div></div>'+
+      '<div><b>3</b><strong>내보내기</strong>오른쪽 위 [내보내기 ▾ → 완성본 파일]로 편집 도구가 빠진 깨끗한 파일을 만들어요.</div></div>'+
       '<details open><summary>작업 화면 한눈에</summary><ul><li>열면 바로 <b>편집 화면</b>이에요. 왼쪽 = <b>슬라이드 목록</b>(눌러서 이동 · 끌어서 순서 · 복제 · 숨기기), 가운데 = 슬라이드, 오른쪽 = <b>선택한 것의 편집 도구</b>.</li>'+
       '<li>오른쪽 도구는 선택에 따라 바뀌어요: 아무것도 안 고르면 <b>이 장</b>(레이아웃 바꾸기 · 배경 · 진행 단계 · 발표자 노트 · 보관함), 글자를 드래그하면 <b>글자</b>, 블록을 누르면 <b>표 · 차트 · 사진</b> 도구.</li>'+
       '<li>왼쪽 위: 자료 제목 · <b>저장 상태</b>(✓ 저장됨 / ● 저장하지 않은 변경) · 📂 열기 · 💾 저장. 오른쪽 위 <b>▶ 발표 시작</b>.</li>'+
@@ -3126,7 +3149,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<span><kbd>F</kbd></span><span>청중 창에서 전체화면</span><span><kbd>Esc</kbd></span><span>발표 종료</span></div>'+
       '<ul><li>청중 창이 따로 뜨면 프로젝터(TV)로 옮기고 클릭하세요. 내 화면에는 타이머, 다음 장, 노트가 보여요.</li>'+
       '<li>팝업이 막혀 있으면 한 화면 전체화면 발표로 시작해요. 태블릿은 좌우로 밀거나 화면을 탭해서 넘겨요.</li></ul></details>'+
-      '<details><summary>저장 · PDF</summary><ul><li><b>완성본 저장</b>: 설정 · 편집 도구가 빠지고 [발표자 모드] [PDF / 인쇄]만 남은 파일. 꺼둔 장은 빠져요.</li>'+
+      '<details><summary>저장 · 내보내기 · PDF</summary><ul><li><b>저장(왼쪽 위)</b> = 계속 고칠 작업 파일, <b>내보내기(오른쪽 위)</b> = 보여주기용 파일 · PDF.</li><li><b>내보내기 → 완성본 파일</b>: 설정 · 편집 도구가 빠지고 [발표자 모드] [PDF / 인쇄]만 남은 파일. 꺼둔 장은 빠져요.</li>'+
       '<li><b>작업본 저장 = <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd></b>: PPT처럼 같은 파일에 덮어써요. 처음 한 번만 위치를 물어보고, [작업본 불러오기]로 연 파일은 그 파일에 바로 저장돼요. 다른 이름으로는 <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>. (크롬 · 엣지. 사파리는 새 파일로 내려받아요)</li>'+
       '<li>🔒 이 도구는 인터넷으로 아무것도 보내지 않아요. 링크(GitHub Pages)로 열어도 편집 내용은 내 브라우저에만 있고, 저장하면 내 컴퓨터로만 내려받아져요.</li>'+
       '<li>편집 내용은 브라우저에 남지 않아요. 창을 닫기 전에 꼭 파일로 저장하세요.</li>'+
