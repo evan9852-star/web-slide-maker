@@ -613,6 +613,16 @@ html.th-off .th-grip{left:0;width:14px}
 html.th-off .th-grip::before{content:'›';position:absolute;left:0;top:50%;width:14px;height:44px;margin-top:-22px;background:#fff;border:1px solid var(--n300);border-left:none;
   border-radius:0 6px 6px 0;font-size:14px;font-weight:800;color:var(--n600);display:flex;align-items:center;justify-content:center;box-shadow:1px 1px 4px rgba(12,26,46,.12)}
 html.th-off .thumbs{display:none!important}
+/* 오른쪽 편집 도구 폭 조절 손잡이 (오른쪽 끝까지 밀면 숨김, 최대 400px) */
+.ip-grip{position:fixed;top:58px;bottom:0;right:calc(var(--ipw,260px) - 5px);width:10px;z-index:80;cursor:ew-resize;display:none;touch-action:none}
+html.edit:not(.sp-open) .ip-grip{display:block}
+.ip-grip::after{content:'';position:absolute;left:4px;top:0;bottom:0;width:2px;background:transparent;transition:background .15s}
+.ip-grip:hover::after,html.ip-drag .ip-grip::after{background:var(--orange)}
+html.ip-off .ip-grip{right:0;width:14px}
+html.ip-off .ip-grip::before{content:'‹';position:absolute;right:0;top:50%;width:14px;height:44px;margin-top:-22px;background:#fff;border:1px solid var(--n300);border-right:none;
+  border-radius:6px 0 0 6px;font-size:14px;font-weight:800;color:var(--n600);display:flex;align-items:center;justify-content:center;box-shadow:-1px 1px 4px rgba(12,26,46,.12)}
+html.ip-off .insp{display:none!important}
+html.ip-drag,html.ip-drag *{cursor:ew-resize!important;user-select:none!important;-webkit-user-select:none!important}
 html.th-drag,html.th-drag *{cursor:ew-resize!important;user-select:none!important;-webkit-user-select:none!important}
 .th-list{display:flex;flex-direction:column;gap:10px}
 .th{position:relative;padding-left:20px;cursor:pointer}
@@ -633,7 +643,7 @@ html.th-drag,html.th-drag *{cursor:ew-resize!important;user-select:none!importan
 .th-pv .r{opacity:1!important;transform:none!important;transition:none!important}
 .th-pv .stage.over::after{display:none}
 /* 오른쪽 편집 도구 */
-.insp{position:fixed;right:0;top:58px;bottom:0;width:260px;z-index:79;display:none;flex-direction:column;gap:2px;background:#fff;border-left:1px solid var(--n200);
+.insp{position:fixed;right:0;top:58px;bottom:0;width:var(--ipw,260px);z-index:79;display:none;flex-direction:column;gap:2px;background:#fff;border-left:1px solid var(--n200);
   overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 90px;font-family:'GmarketSans',-apple-system,sans-serif;font-size:13px;color:var(--n700)}
 html.edit:not(.sp-open) .insp{display:flex}
 .insp h4{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:4px} .insp h4 span{font-size:12px;font-weight:700;color:var(--n500);margin-left:4px}
@@ -642,7 +652,9 @@ html.edit:not(.sp-open) .insp{display:flex}
 .insp button{font:inherit;font-size:12.5px;font-weight:700;color:var(--n700);background:var(--n050);border:1px solid var(--n200);border-radius:8px;padding:8px 9px;cursor:pointer;text-align:center}
 .insp button:hover{border-color:var(--n400);background:#fff} .insp button.on{border-color:var(--orange);background:var(--orange-tint);color:var(--orange-ink)}
 .insp button.hl{background:var(--orange);border-color:var(--orange);color:#2B1400} .insp button.del{color:#C43D3D}
-.insp button.wide{width:100%;margin-top:6px} .insp button.sm{padding:4px 8px;font-size:11.5px}
+.insp button.wide{width:100%;margin-top:6px}
+.insp button.lib{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:800;padding:10px}
+.insp button.lib:hover{background:color-mix(in srgb,var(--navy) 85%,#000);border-color:var(--navy);color:#fff} .insp button.sm{padding:4px 8px;font-size:11.5px}
 .insp .ig{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .insp .ir{display:flex;align-items:center;gap:6px;margin-top:6px}
 .insp .ir input{width:62px;text-align:center;font:inherit;font-size:13px;font-weight:700;border:1px solid var(--n200);border-radius:8px;padding:7px 4px}
@@ -662,19 +674,20 @@ html.edit:not(.sp-open) .insp{display:flex}
 .insp .iwarn .ig{margin-top:8px}
 /* 편집 모드: 가운데 작업 영역 확보 */
 html.edit body{margin-left:var(--thw,196px)}
-html.edit:not(.sp-open) body{margin-right:260px}
-html.edit .ins{left:calc(50% + (var(--thw,196px) - 260px) / 2)}
-html.edit .gal-pop{left:calc(50% + (var(--thw,196px) - 260px) / 2)}
+html.edit:not(.sp-open) body{margin-right:var(--ipw,260px)}
+html.edit .ins{left:calc(50% + (var(--thw,196px) - var(--ipw,260px)) / 2)}
+html.edit .gal-pop{left:calc(50% + (var(--thw,196px) - var(--ipw,260px)) / 2)}
 html.edit.sp-open .ins,html.edit.sp-open .gal-pop{left:calc(50% + (var(--thw,196px) - var(--spw,400px)) / 2)}
 html.pm .docbar,html.pm .thumbs,html.pm .insp{display:none!important}
-@media (max-width:1100px){ html.edit body{margin-left:0} html.edit:not(.sp-open) body{margin-right:0} .thumbs,.th-grip,html.edit .th-grip,html.edit:not(.sp-open) .insp{display:none} html.edit .ins,html.edit .gal-pop{left:50%} }
-html.pm .th-grip{display:none!important} @media print{.th-grip{display:none!important}}
+@media (max-width:1100px){ html.edit body{margin-left:0} html.edit:not(.sp-open) body{margin-right:0} .thumbs,.th-grip,html.edit .th-grip,.ip-grip,html.edit:not(.sp-open) .ip-grip,html.edit:not(.sp-open) .insp{display:none} html.edit .ins,html.edit .gal-pop{left:50%} }
+html.pm .th-grip,html.pm .ip-grip{display:none!important} @media print{.th-grip,.ip-grip{display:none!important}}
 @media print{.docbar,.thumbs,.insp{display:none!important}}
 /* 보관함 · 넘침 정리 */
 .gal .libi{display:flex;gap:2px} .gal .libi button[data-lib]{flex:1}
 .gal .libx{flex:none!important;width:28px;justify-content:center;padding:0!important;color:var(--n400)!important}
 .gal .libx:hover{color:#C43D3D!important}
 .gal i.lb{background:var(--orange)!important;border-color:var(--orange)!important}
+.gal h5.libh{color:var(--navy);border-left:3px solid var(--navy);padding-left:7px}
 .gal h5 em{font-style:normal;font-weight:600;color:var(--n400);margin-left:4px;letter-spacing:0}
 .stage.tight>*:not([data-gen-slide]):not(.fx){margin-top:14px!important}
 .stage.tight h2{font-size:calc(var(--t-h2)*.88)!important} .stage.tight .lead,.stage.tight .cap,.stage.tight .fineprint{line-height:1.42!important}
@@ -2568,7 +2581,7 @@ html.pm.pm-console .pm-exit{display:none!important}
         '<button type="button" class="btn x" data-ntg="'+i+'" title="발표자 노트" aria-label="발표자 노트">'+(it.notes?'✎•':'✎')+'</button>'+
         (it.custom?'<button type="button" class="btn x" data-sldel="'+i+'" aria-label="삭제">✕</button>':'<button type="button" class="btn x" data-dup="'+i+'" aria-label="복제" title="복제">⧉</button>')+'</div>'+
         '<label class="stp"><span>진행 단계</span><input type="text" data-stp="'+i+'" value="'+esc(it.step||'')+'" placeholder="없음" list="stpList"></label>'+
-        '<textarea class="nt" data-nt="'+i+'" hidden placeholder="발표자 노트 · 발표자 모드 콘솔에만 보입니다">'+esc(it.notes||'')+'</textarea>';
+        '<textarea class="nt" data-nt="'+i+'" hidden placeholder="발표자 노트">'+esc(it.notes||'')+'</textarea>';
     }).join('')+'<datalist id="stpList">'+CFG.slides.map(function(it){ return it.step; }).filter(function(x,i,a){ return x&&a.indexOf(x)===i; }).map(function(x){ return '<option value="'+esc(x)+'">'; }).join('')+'</datalist>';
   }
   sp.addEventListener('input',function(e){
@@ -2851,6 +2864,24 @@ html.pm.pm-console .pm-exit{display:none!important}
     thGrip.addEventListener('dblclick',function(){ setThw(196); saveThw(); fitDoc(); });
     addEventListener('resize',function(){ if(!root.classList.contains('th-off')) setThw(thW); });
   }
+  /* 오른쪽 편집 도구 폭: 왼쪽 경계를 끌어 조절 · 오른쪽 끝까지 밀면 숨김 · 최대 400px(화면의 30%) */
+  var ipGrip=null, ipW=260;
+  function setIpw(w){ var mx=Math.min(400,Math.round(innerWidth*.3)); var off=w<150; ipW=off?ipW:Math.max(220,Math.min(mx,Math.round(w)));
+    root.classList.toggle('ip-off',off); root.style.setProperty('--ipw',(off?0:ipW)+'px'); return off?0:ipW; }
+  function saveIpw(){ try{ localStorage.setItem('wsm-ip-w',root.classList.contains('ip-off')?'0':String(ipW)); }catch(_){} }
+  function buildIpGrip(){
+    if(ipGrip) return; ipGrip=document.createElement('div'); ipGrip.className='ip-grip'; ipGrip.setAttribute('data-gen',''); ipGrip.title='끌어서 편집 도구 폭 조절 · 끝까지 밀면 숨김 · 두 번 누르면 기본 크기'; body.appendChild(ipGrip);
+    var w0=260; try{ var v=localStorage.getItem('wsm-ip-w'); if(v!==null) w0=+v; }catch(_){} if(w0===0){ setIpw(260); setIpw(0); } else setIpw(w0||260);
+    ipGrip.addEventListener('pointerdown',function(e){
+      e.preventDefault(); if(root.classList.contains('ip-off')){ setIpw(ipW||260); saveIpw(); fitDoc(); return; }
+      root.classList.add('ip-drag'); var moved=false;
+      function mv(ev){ moved=true; setIpw(innerWidth-ev.clientX); fitDoc(); }
+      function up(){ removeEventListener('pointermove',mv); removeEventListener('pointerup',up); root.classList.remove('ip-drag'); saveIpw(); fitDoc(); if(moved) toast(root.classList.contains('ip-off')?'편집 도구를 숨겼어요 · 오른쪽 가장자리 ‹ 를 누르면 다시 열려요':'편집 도구 폭 '+ipW+'px',1600); }
+      addEventListener('pointermove',mv); addEventListener('pointerup',up);
+    });
+    ipGrip.addEventListener('dblclick',function(){ setIpw(260); saveIpw(); fitDoc(); });
+    addEventListener('resize',function(){ if(!root.classList.contains('ip-off')) setIpw(ipW); });
+  }
   function schedThumbs(){ if(!TOOL||!edit) return; clearTimeout(thumbT); thumbT=setTimeout(buildThumbs,350); }
   function markThumbCur(){ if(!thumbs) return; var cid=(curSlide()||{}).id; [].forEach.call(thumbs.querySelectorAll('.th'),function(t){ var on=t.getAttribute('data-id')===cid; if(on&&!t.classList.contains('cur')){ t.classList.add('cur'); var r=t.getBoundingClientRect(), q=thumbs.getBoundingClientRect(); if(r.top<q.top||r.bottom>q.bottom) t.scrollIntoView({block:'nearest'}); } else if(!on) t.classList.remove('cur'); }); }
   function onThumb(e){
@@ -2868,10 +2899,10 @@ html.pm.pm-console .pm-exit{display:none!important}
   function libGet(){ try{ return JSON.parse(localStorage.getItem('wsm-lib')||'[]'); }catch(_){ return []; } }
   function libSet(a){ try{ localStorage.setItem('wsm-lib',JSON.stringify(a)); return true; }catch(_){ toast('보관함에 저장하지 못했어요 (브라우저 저장 공간 부족이거나 사생활 보호 모드예요)'); return false; } }
   function libAdd(sec){ var nm=prompt('보관함에 담을 이름',(sec.getAttribute('data-label')||'내 슬라이드')); if(nm===null) return;
-    var a=libGet(); a.unshift({id:'L'+Date.now().toString(36),name:nm.trim()||'내 슬라이드',html:plainSlide(sec).outerHTML,ts:Date.now()}); if(libSet(a)){ refreshGal(); toast('⭐ 보관함에 담았어요 · [+ 장 추가]의 맨 위에서 꺼내 쓰세요',2800); } }
+    var a=libGet(); a.unshift({id:'L'+Date.now().toString(36),name:nm.trim()||'내 슬라이드',html:plainSlide(sec).outerHTML,ts:Date.now()}); if(libSet(a)){ refreshGal(); toast('보관함에 담았어요 · [+ 장 추가]의 맨 위에서 꺼내 쓰세요',2800); } }
   function refreshGal(){ if(gal) gal.innerHTML='<p class="pop-t">장 추가 · 마우스를 올리면 미리보기</p>'+galleryHTML(); }
   function libHTML(){ var a=libGet(); if(!a.length) return '';
-    return '<h5>⭐ 내 보관함 <em>이 브라우저에 보관</em></h5>'+a.map(function(x){ return '<span class="libi"><button type="button" data-lib="'+x.id+'"><i class="lb"></i>'+esc(x.name)+'</button><button type="button" class="libx" data-libdel="'+x.id+'" title="보관함에서 지우기">×</button></span>'; }).join(''); }
+    return '<h5 class="libh">내 보관함 <em>이 브라우저에 보관</em></h5>'+a.map(function(x){ return '<span class="libi"><button type="button" data-lib="'+x.id+'"><i class="lb"></i>'+esc(x.name)+'</button><button type="button" class="libx" data-libdel="'+x.id+'" title="보관함에서 지우기">×</button></span>'; }).join(''); }
   function libSlide(id){ var x=libGet().filter(function(y){ return y.id===id; })[0]; if(!x) return null; var t=document.createElement('template'); t.innerHTML=x.html; var s=t.content.querySelector('.slide'); if(s) s.setAttribute('data-label',x.name); return s; }
   document.addEventListener('click',function(e){
     var d=e.target.closest&&e.target.closest('[data-libdel]'); if(d){ e.stopPropagation(); e.preventDefault(); if(!confirm('보관함에서 지울까요? (이 슬라이드를 쓴 자료에는 영향이 없어요)')) return;
@@ -2976,8 +3007,8 @@ html.pm.pm-console .pm-exit{display:none!important}
         '<p class="il">레이아웃 바꾸기 <em>내용은 그대로</em></p>'+(un?'<div class="ig">'+LAYS.map(function(l){ return '<button type="button" data-lay="'+l[0]+'">'+l[1]+'</button>'; }).join('')+'</div><p class="ih">마우스를 올리면 미리보기 · ⌘Z로 되돌리기</p>':'<p class="ih">이 장에는 바꿀 항목(목록 · 칸 · 비교)이 없어요</p>')+
         '<p class="il">배경</p><div class="isw">'+BGS.map(function(b2){ return '<button type="button" data-ibg="'+b2[0]+'" title="'+b2[1]+'" class="'+(b2[0]===cur?'on':'')+'" style="background:'+(b2[0]==='@grad'?'linear-gradient(152deg,#062750,#0A3A78)':b2[0])+'"></button>'; }).join('')+B2('s:bg0','기본','sm')+'</div>'+
         '<p class="il">진행 단계</p><input data-ii="step" value="'+esc(it.step||'')+'" placeholder="없음 (같은 이름끼리 한 단계)">'+
-        '<p class="il">발표자 노트</p><textarea data-ii="notes" placeholder="발표자 모드에서 내 화면에만 보여요">'+esc(it.notes||'')+'</textarea>'+
-        '<div class="ig">'+B2('s:lib','⭐ 보관함에 담기','wide')+B2('s:dup','장 복제')+B2('s:hide','숨기기')+'</div>';
+        '<p class="il">발표자 노트</p><textarea data-ii="notes" placeholder="발표자 노트">'+esc(it.notes||'')+'</textarea>'+
+        '<div class="ig">'+B2('s:lib','보관함에 담기','wide lib')+B2('s:dup','장 복제')+B2('s:hide','숨기기')+'</div>';
     }
     insp.innerHTML=h;
   }
@@ -3017,7 +3048,7 @@ html.pm.pm-console .pm-exit{display:none!important}
   function initTool(){
     if(!TOOL) return; root.classList.add('tool');
     var pmb=document.getElementById('bPm'); if(pmb){ pmb.textContent='▶ 발표 시작'; pmb.classList.add('primary'); }
-    buildDocbar(); buildInsp(); buildThGrip(); toggleEdit(true,true); buildThumbs(); paintInsp();
+    buildDocbar(); buildInsp(); buildThGrip(); buildIpGrip(); toggleEdit(true,true); buildThumbs(); paintInsp();
   }
 
   /* ── 도움말 ── */
@@ -3035,7 +3066,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<details open><summary>작업 화면 한눈에</summary><ul><li>열면 바로 <b>편집 화면</b>이에요. 왼쪽 = <b>슬라이드 목록</b>(눌러서 이동 · 끌어서 순서 · 복제 · 숨기기), 가운데 = 슬라이드, 오른쪽 = <b>선택한 것의 편집 도구</b>.</li>'+
       '<li>오른쪽 도구는 선택에 따라 바뀌어요: 아무것도 안 고르면 <b>이 장</b>(레이아웃 바꾸기 · 배경 · 진행 단계 · 발표자 노트 · 보관함), 글자를 드래그하면 <b>글자</b>, 블록을 누르면 <b>표 · 차트 · 사진</b> 도구.</li>'+
       '<li>왼쪽 위: 자료 제목 · <b>저장 상태</b>(✓ 저장됨 / ● 저장하지 않은 변경) · 📂 열기 · 💾 저장. 오른쪽 위 <b>▶ 발표 시작</b>.</li>'+
-      '<li><b>⭐ 내 보관함</b>: 잘 만든 장을 [이 장 → 보관함에 담기]로 저장해 두면 [+ 장 추가] 맨 위에서 복사본으로 꺼내 써요. 이 브라우저에 보관돼요.</li>'+
+      '<li><b>내 보관함</b>: 잘 만든 장을 [이 장 → 보관함에 담기]로 저장해 두면 [+ 장 추가] 맨 위에서 복사본으로 꺼내 써요. 이 브라우저에 보관돼요.</li>'+
       '<li><b>레이아웃 바꾸기</b>: 이 장의 글은 그대로 두고 목록 ↔ 칸 ↔ 비교 ↔ 큰 숫자 ↔ 단계로 바꿔요. 마우스를 올리면 미리보기.</li>'+
       '<li><b>넘침 정리</b>: 내용이 장을 넘치면 오른쪽에 경고와 함께 [간격 정리] [두 장으로 나누기]가 떠요.</li></ul></details>'+
       '<details><summary>글자 고치기</summary><ul><li>[편집]을 켜고 글자를 누르면 바로 고칠 수 있어요.</li>'+
