@@ -645,6 +645,7 @@ html.th-drag,html.th-drag *{cursor:ew-resize!important;user-select:none!importan
 .th:hover .th-act{display:flex}
 .th-act button{font-size:11px;line-height:1;width:22px;height:22px;border:none;border-radius:6px;background:rgba(12,26,46,.78);color:#fff;cursor:pointer;padding:0}
 .th-act button:hover{background:var(--n900)}
+.th-act .ta-ic{width:13px;height:13px;display:block;margin:auto;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .th-add{margin-top:12px;margin-left:20px;font:inherit;font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px dashed var(--n300);border-radius:8px;padding:10px;cursor:pointer}
 .th-add:hover{border-color:var(--orange);color:var(--orange-ink)}
 .th-pv .slide{position:relative!important;left:auto!important;top:auto!important;transform:none!important;display:block!important;width:var(--sw)!important;height:var(--sh)!important;min-height:0!important;padding:0!important;margin:0!important;border:none!important}
@@ -2850,7 +2851,7 @@ html.pm.pm-console .pm-exit{display:none!important}
     thumbs.innerHTML='<p class="th-h">슬라이드</p><div class="th-list">'+CFG.slides.map(function(it,i){ var s=document.getElementById(it.id); if(!s) return ''; if(it.on) n++;
       return '<div class="th'+(it.on?'':' off')+(it.id===cid?' cur':'')+'" draggable="true" data-ti="'+i+'" data-id="'+it.id+'" title="'+esc(s.getAttribute('data-label')||'')+'">'+
         '<span class="th-n">'+(it.on?n:'–')+'</span><div class="th-pv"><div></div></div>'+
-        '<div class="th-act"><button type="button" data-ta="dup" title="복제">⧉</button><button type="button" data-ta="hide" title="'+(it.on?'숨기기':'다시 보이기')+'">'+(it.on?'👁':'🚫')+'</button>'+(it.custom?'<button type="button" data-ta="del" title="삭제">✕</button>':'')+'</div></div>'; }).join('')+
+        '<div class="th-act"><button type="button" data-ta="dup" title="복제">⧉</button><button type="button" data-ta="hide" title="'+(it.on?'숨기기':'다시 보이기')+'">'+(it.on?'<svg class="ta-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8S4 3.75 8 3.75 14.5 8 14.5 8 12 12.25 8 12.25 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>':'<svg class="ta-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8S4 3.75 8 3.75 14.5 8 14.5 8 12 12.25 8 12.25 1.5 8 1.5 8z"/><path d="M2.5 13.5l11-11"/></svg>')+'</button>'+(it.custom?'<button type="button" data-ta="del" title="삭제">✕</button>':'')+'</div></div>'; }).join('')+
       '</div><button type="button" class="th-add" data-ta="add">+ 장 추가</button>';
     [].forEach.call(thumbs.querySelectorAll('.th'),function(t){ var s=document.getElementById(t.getAttribute('data-id')); if(!s) return; var h=t.querySelector('.th-pv>div'), c=cleanClone(s);
       if(!c.querySelector('.stage')) wrap(c); h.appendChild(c); });
@@ -2903,7 +2904,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       if(a==='hide'){ it.on=!it.on; refresh(); toast(it.on?'다시 보이게 했어요':'숨겼어요 · 완성본에는 들어가지 않아요',1800); return; }
       if(a==='del'){ if(!confirm('이 장을 지울까요? (⌘/Ctrl+Z로 되돌릴 수 있어요)')) return; s.parentNode.removeChild(s); CFG.slides.splice(i,1); refresh(); return; }
     }
-    if(t){ var s2=document.getElementById(t.getAttribute('data-id')); if(s2&&!s2.hidden){ s2.scrollIntoView({behavior:'instant',block:'start'}); markThumbCur(); inspMode0=''; schedInsp(); } else toast('숨긴 장이에요 · 👁 버튼으로 다시 보이게 할 수 있어요',2200); }
+    if(t){ var s2=document.getElementById(t.getAttribute('data-id')); if(s2&&!s2.hidden){ s2.scrollIntoView({behavior:'instant',block:'start'}); markThumbCur(); inspMode0=''; schedInsp(); } else toast('숨긴 장이에요 · 썸네일의 눈 모양 버튼으로 다시 보이게 할 수 있어요',2200); }
   }
   /* ── 내 슬라이드 보관함 (이 브라우저에 보관 · 넣을 때는 복사본) ── */
   function libGet(){ try{ return JSON.parse(localStorage.getItem('wsm-lib')||'[]'); }catch(_){ return []; } }
