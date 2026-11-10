@@ -603,6 +603,9 @@ html.tool .navdots{display:none!important}  /* 진행 바는 완성본에서만 
 .docbar .db-st.ok{color:#1F7A55;background:#E6F4EA} .docbar .db-st.dirty{color:var(--orange-ink);background:var(--orange-tint)} .docbar .db-st.new{color:var(--n500);background:var(--n100)}
 .docbar button{font:inherit;font-size:12.5px;font-weight:700;color:var(--n700);background:#fff;border:1px solid var(--n200);border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap}
 .docbar button:hover{border-color:var(--n400)}
+.docbar button[data-d]{display:inline-flex;align-items:center;gap:6px}
+.docbar .db-ic{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;color:var(--n500)}
+.docbar button[data-d]:hover .db-ic{color:var(--navy)}
 .toolbar #bPm.primary{background:var(--orange);color:#2B1400;border-color:var(--orange)}
 .toolbar #bPm.primary:hover{background:color-mix(in srgb,var(--orange) 88%,#fff)}
 /* 왼쪽 썸네일 */
@@ -2816,7 +2819,7 @@ html.pm.pm-console .pm-exit{display:none!important}
   function buildDocbar(){
     docbar=document.createElement('div'); docbar.className='docbar'; docbar.setAttribute('data-gen','');
     docbar.innerHTML='<input class="db-title" aria-label="자료 제목" title="자료 제목 (저장 파일 이름)"><span class="db-st" aria-live="polite"></span>'+
-      '<button type="button" data-d="open" title="내 컴퓨터의 작업본 열기">📂 열기</button><button type="button" data-d="save" title="작업본 저장 (⌘/Ctrl+S)">💾 저장</button>';
+      '<button type="button" data-d="open" title="내 컴퓨터의 작업본 열기"><svg class="db-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 4.25v8a1 1 0 0 0 1 1h10.5a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1H8L6.5 3.25H2.75a1 1 0 0 0-1 1z"/></svg><span>열기</span></button><button type="button" data-d="save" title="작업본 저장 (⌘/Ctrl+S)"><svg class="db-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.25v7.5M4.75 6.75 8 10l3.25-3.25M2.75 11.5v1.25a1 1 0 0 0 1 1h8.5a1 1 0 0 0 1-1V11.5"/></svg><span>저장</span></button>';
     body.appendChild(docbar);
     var ti=docbar.querySelector('.db-title'); ti.value=CFG.display.title||'';
     ti.addEventListener('input',function(){ CFG.display.title=ti.value; document.title=ti.value||'웹 슬라이드 메이커'; clearTimeout(typingT); typingT=setTimeout(commit,500); });
@@ -3088,7 +3091,7 @@ html.pm.pm-console .pm-exit{display:none!important}
       '<div><b>3</b><strong>내보내기</strong>오른쪽 위 [내보내기 ▾ → 완성본 파일]로 편집 도구가 빠진 깨끗한 파일을 만들어요.</div></div>'+
       '<details open><summary>작업 화면 한눈에</summary><ul><li>열면 바로 <b>편집 화면</b>이에요. 왼쪽 = <b>슬라이드 목록</b>(눌러서 이동 · 끌어서 순서 · 복제 · 숨기기), 가운데 = 슬라이드, 오른쪽 = <b>선택한 것의 편집 도구</b>.</li>'+
       '<li>오른쪽 도구는 선택에 따라 바뀌어요: 아무것도 안 고르면 <b>이 장</b>(레이아웃 바꾸기 · 배경 · 진행 단계 · 발표자 노트 · 보관함), 글자를 드래그하면 <b>글자</b>, 블록을 누르면 <b>표 · 차트 · 사진</b> 도구.</li>'+
-      '<li>왼쪽 위: 자료 제목 · <b>저장 상태</b>(✓ 저장됨 / ● 저장하지 않은 변경) · 📂 열기 · 💾 저장. 오른쪽 위 <b>▶ 발표 시작</b>.</li>'+
+      '<li>왼쪽 위: 자료 제목 · <b>저장 상태</b>(✓ 저장됨 / ● 저장하지 않은 변경) · 열기 · 저장. 오른쪽 위 <b>▶ 발표 시작</b>.</li>'+
       '<li><b>내 보관함</b>: 잘 만든 장을 [이 장 → 보관함에 담기]로 저장해 두면 [+ 장 추가] 맨 위에서 복사본으로 꺼내 써요. 이 브라우저에 보관돼요.</li>'+
       '<li><b>레이아웃 바꾸기</b>: 이 장의 글은 그대로 두고 목록 ↔ 칸 ↔ 비교 ↔ 큰 숫자 ↔ 단계로 바꿔요. 마우스를 올리면 미리보기.</li>'+
       '<li><b>넘침 정리</b>: 내용이 장을 넘치면 오른쪽에 경고와 함께 [간격 정리] [두 장으로 나누기]가 떠요.</li></ul></details>'+
